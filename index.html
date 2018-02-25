@@ -1,16 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
+<meta charset="UTF-8">
 <title>Alagamento</title>
 <script src= "socket.io.js"></script>
 <script src= "d3.js"></script>
-
-<link rel="stylesheet" href="style.css" />
+<script src= "jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" href="styles.css" />
 
 </head>
-<body>
-    <div id = "graph"></div>
+<body id ="main">
+    
+    <aside class = "app">
+        <div id = "graph"></div>
+    </aside>
+
     <script src="app.js"></script>
+
+    <aside class = "menu">
+        <form class = "forms" id = "nodeCreate">
+            nó: <input type="text" ng-model="nome" id="nodeType">
+            <button class="button button1">criar</button>
+        </form>
+    </aside>
 </body>
 </html>

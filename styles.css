@@ -1,0 +1,41 @@
+#main {
+    font-family: monospace;
+}
+
+.app {
+    margin: auto;
+    float: left;
+    border-style: solid;
+    border-color: firebrick;
+    border-width: 5pt;
+
+}
+
+.menu {
+    display: block;
+    margin-left: 30pt;
+    float: left;
+}
+
+.button{
+    background-color: firebrick;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+#nodeCreate {
+    font-size: 12pt;
+    font-style: oblique;
+    text-decoration-color: indigo;
+    text-rendering: geometricPrecision;
+}
+
+#nodeCreate {
+    margin: 10pt;
+}

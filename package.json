@@ -1,5 +1,5 @@
 {
-  "name": "Langrafico",
+  "name": "langrafico",
   "version": "0.0.1",
   "description": "Generated with Eclipse npm Tools",
   "main": "app.js",
@@ -8,6 +8,7 @@
     "mongodb": "^3.0.3",
     "neo4j": "latest",
     "neo4j-driver": "^1.5.3",
+    "semantic-ui": "^2.3.0",
     "socket.io": "^2.0.4",
     "toxiclibsjs": "^0.3.3"
   },

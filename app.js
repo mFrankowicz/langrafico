@@ -24,8 +24,9 @@ dataContainer = d3
 SVG = d3
     .select("#graph")
     .append("svg")
-    .attr("width", 900)
-    .attr("height", 700)
+    .attr("class", "appWindow")
+    .attr("width", 600)
+    .attr("height", 400)
     .style("background", d3.color("#D4E1E5"));
 
 
@@ -130,3 +131,4 @@ function requestAll() {
 
     //MATCH (a:Person)-[r:ACTED_IN]->(b:Movie) WHERE b.title = "The Matrix" RETURN a AS source, b AS target, r AS links
 }
+

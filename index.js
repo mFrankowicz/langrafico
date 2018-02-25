@@ -5,12 +5,7 @@
 // Fiheci%21%403
 var _ = require('lodash');
 
-var MongoClient = require('mongodb').MongoClient;
-
 var assert = require('assert');
-
-var uri = "mongodb://selodois:Fiheci123@selodois-shard-00-00-k3ecd.mongodb.net:27017,selodois-shard-00-01-k3ecd.mongodb.net:27017,selodois-shard-00-02-k3ecd.mongodb.net:27017/selodois?ssl=true&replicaSet=selodois-shard-0&authSource=admin";
-
 
 var http = require('http');
 // Path module
@@ -125,6 +120,7 @@ io.sockets.on('connection',
                         session.close();
                         //driver.close();
                         var nodes = _.unionWith(source, target, _.isEqualWith);
+                        mongoData = nodes;
                         //var nodes = _.union(source, target);
                         // console.log(nodes);
                         var response = {
@@ -132,7 +128,7 @@ io.sockets.on('connection',
                             links: rels
                         };
                         io.sockets.emit('response', response);
-
+                        io.sockets.emit('putToMongo', response);
                     },
                     onError: function (error) {
                         console.log(error);
@@ -145,55 +141,5 @@ io.sockets.on('connection',
         socket.on('disconnect', function () {
             console.log("Client has disconnected");
         });
-    });
-
-
-
-MongoClient.connect(uri, function (err, client) {
-    assert.equal(null, err);
-
-    const db = client.db("selodois");
-
-    console.log("Connected successfully to server");
-     findDocuments(db, function () {
-        client.close();
-    });
-    /*
-    insertDocuments(db, function () {
-        client.close();
-    });
-    */
-});
-
-var insertDocuments = function (db, callback) {
-    // Get the documents collection
-    const collection = db.collection('documents');
-    // Insert some documents
-    collection.insertMany([
-        {
-            a: 1
-        }, {
-            a: 2
-        }, {
-            a: 3
-        }
-  ], function (err, result) {
-        assert.equal(err, null);
-        assert.equal(3, result.result.n);
-        assert.equal(3, result.ops.length);
-        console.log("Inserted 3 documents into the collection");
-        callback(result);
-    });
-};
-
-const findDocuments = function (db, callback) {
-    // Get the documents collection
-    const collection = db.collection('documents');
-    // Find some documents
-    collection.find({}).toArray(function (err, docs) {
-        assert.equal(err, null);
-        console.log("Found the following records");
-        console.log(docs)
-        callback(docs);
-    });
-}
+    }
+);
