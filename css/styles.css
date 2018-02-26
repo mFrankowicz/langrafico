@@ -29,6 +29,12 @@
     cursor: pointer;
 }
 
+.labels{
+    font-family: monospace;
+    text-align: center;
+    font-style: oblique;
+}
+
 #nodeCreate {
     font-size: 12pt;
     font-style: oblique;

@@ -56,7 +56,7 @@ io.sockets.on('connection',
                         var sId = s.identity.low;
                         var tId = t.identity.low;
                         var sName = s.properties.name;
-                        var tName = t.properties.title;
+                        var tName = t.properties.name;
 
                         source.push({
                             "id": sId,
@@ -87,7 +87,7 @@ io.sockets.on('connection',
                             links: rels
                         };
                         io.sockets.emit('response', response);
-                        io.sockets.emit('putToMongo', response);
+                        //io.clients[socket.id].emit('response', response);
                     },
                     onError: function (error) {
                         console.log(error);

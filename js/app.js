@@ -11,7 +11,7 @@ var nodeSVG;
 var linkSVG;
 
 
-var width = 900;
+var width = 700;
 var height = 700;
 
 socket = io();
@@ -24,8 +24,8 @@ SVG = d3
     .select("#graph")
     .append("svg")
     .attr("class", "appWindow")
-    .attr("width", 600)
-    .attr("height", 400)
+    .attr("width", width)
+    .attr("height", height)
     .style("background", d3.color("#D4E1E5"));
 
 
@@ -64,6 +64,7 @@ socket
 
         elemEnter
             .append("text")
+            .attr("class", "labels")
             .text(function (d) {
                 return d.name;
             })
@@ -122,7 +123,7 @@ function dragended(d) {
 
 function requestAll() {
     socket
-        .emit('requireAll', 'MATCH (a:Person)-[r:DIRECTED]->(b:Movie) RETURN a AS source, b AS target, r AS links');
+        .emit('requireAll', 'MATCH (a:Atuadores)-[r:Movimento]->(b:Discurso) RETURN a AS source, b AS target, r AS links');
 
     //MATCH (a:Person)-[r:DIRECTED]->(b:Movie) RETURN a AS source, b AS target, r AS links
 
