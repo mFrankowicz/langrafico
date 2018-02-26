@@ -1,71 +1,30 @@
 /*jslint node:true*/
-// mongodb atlas: 
-// selodois
-// Fiheci!@3
-// Fiheci%21%403
-var _ = require('lodash');
 
-var assert = require('assert');
+const _ = require('lodash');
 
-var http = require('http');
-// Path module
-var path = require('path');
+const assert = require('assert');
 
-// Using the filesystem module
-var fs = require('fs');
+const neo4j = require('neo4j-driver').v1;
 
-var server = http.createServer(handleRequest);
-server.listen(8080);
+const socketIO = require('socket.io');
 
-console.log('Server started on port 8080');
+const express = require('express');
 
-function handleRequest(req, res) {
-    // What did we request?
-    var pathname = req.url;
+const path = require('path');
 
-    // If blank let's ask for index.html
-    if (pathname == '/') {
-        pathname = '/index.html';
-    }
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname,'index.html');
 
-    // Ok what's our file extension
-    var ext = path.extname(pathname);
+const server = express()
+    .use('/js', express.static(__dirname + '/js'))
+    .use('/css', express.static(__dirname + '/css'))
+    .use((req,res) => res.sendFile(INDEX))
+    .listen(PORT, () => console.log('Escutando em ${ PORT }'));
 
-    // Map extension to file type
-    var typeExt = {
-        '.html': 'text/html',
-        '.js': 'text/javascript',
-        '.css': 'text/css'
-    };
-    // What is it? Default to plain text
-
-    var contentType = typeExt[ext] || 'text/plain';
-
-    // User file system module
-    fs.readFile(__dirname + pathname,
-        // Callback function for reading
-        function (err, data) {
-            // if there is an error
-            if (err) {
-                res.writeHead(500);
-                return res.end('Error loading ' + pathname);
-            }
-            // Otherwise, send the data, the contents of the file
-            res.writeHead(200, {
-                'Content-Type': contentType
-            });
-            res.end(data);
-        });
-}
-
-
-
-var neo4j = require('neo4j-driver').v1;
 var driver = neo4j.driver("bolt://107.22.143.53:33353", neo4j.auth.basic("neo4j", "hardcopy-petroleum-successes"));
 var session = driver.session();
 
-
-var io = require('socket.io').listen(server);
+const io = socketIO(server);
 
 // Register a callback function to run when we have an individual connection
 // This is run for each individual user that connects
