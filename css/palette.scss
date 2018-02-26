@@ -1,10 +1,11 @@
-:root{
-    --links: rgba(214, 40, 57, 1);
-    --color: rgba(186, 50, 79, 1);
-    --label: rgba(23, 86, 118, 1);
-    --nodes: rgba(75, 163, 195, 1);
-    --fundo: rgba(204, 230, 244, 1);
-}
+/* Coolors Exported Palette - coolors.co/d62839-ba324f-175676-4ba3c3-cce6f4 */
+
+/* RGB */
+$color1: rgba(214, 40, 57, 1);
+$color2: rgba(186, 50, 79, 1);
+$color3: rgba(23, 86, 118, 1);
+$color4: rgba(75, 163, 195, 1);
+$color5: rgba(204, 230, 244, 1);
 
 
 #main {
@@ -15,13 +16,13 @@
     margin: auto;
     float: left;
     border-style: solid;
-    border-color: firebrick;
+    border-color: $color1;
     border-width: 5pt;
 
 }
 
 .appWindow{
-    background: var(--fundo);
+    background: $color5;
 }
 .menu {
     display: block;
@@ -30,7 +31,7 @@
 }
 
 .button{
-    background-color: firebrick;
+    background-color: $color2;
     border: none;
     color: white;
     text-align: center;
@@ -44,20 +45,19 @@
 .links{
     stroke-width: 4pt;
     stroke-dasharray: 2pt;
-    stroke: var(--links);
 }
 
 .nodes{
-    fill: var(--nodes);
-    cursor: pointer;
+    fill: #C44536;
 }
 .labels{
-    fill: var(--label);
+    fill: #197278;
     font-family: monospace;
     text-align: center;
+    font-style: oblique;
     font-weight: bolder;
     text-anchor: middle;
-    font-size: large;
+    cursor: move;
 }
 
 #nodeCreate {

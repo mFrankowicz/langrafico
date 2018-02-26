@@ -25,8 +25,7 @@ SVG = d3
     .append("svg")
     .attr("class", "appWindow")
     .attr("width", width)
-    .attr("height", height)
-    .style("background", d3.color("#D4E1E5"));
+    .attr("height", height);
 
 
 
@@ -35,7 +34,7 @@ force = d3.forceSimulation()
     .force("link", d3.forceLink().id(function (d) {
         return d.id;
     }))
-    .force("charge", d3.forceManyBody(0.3));
+    .force("charge", d3.forceManyBody(20));
 
 requestAll();
 
@@ -49,8 +48,7 @@ socket
             .attr("class", "links")
             .selectAll("line")
             .data(links)
-            .enter().append("line")
-            .style("stroke", d3.color("#FF4D40"));
+            .enter().append("line");
 
         var elem = SVG.selectAll("g nodeLabels").data(nodes);
         var elemEnter = elem
@@ -59,16 +57,15 @@ socket
             .attr("class", "nodes");
 
         nodeSVG = elemEnter.append("circle")
-            .attr("r", 10)
-            .style("fill", d3.color("#2CA4CC"));
+            .attr("class", "nodes")
+            .attr("r", 20);
 
         elemEnter
             .append("text")
             .attr("class", "labels")
             .text(function (d) {
                 return d.name;
-            })
-            .attr("fill", d3.color("#BF1340"));
+            });
 
 
         force.nodes(nodes).on("tick", ticked);
@@ -123,7 +120,7 @@ function dragended(d) {
 
 function requestAll() {
     socket
-        .emit('requireAll', 'MATCH (a:Atuadores)-[r:Movimento]->(b:Discurso) RETURN a AS source, b AS target, r AS links');
+        .emit('requireAll', 'MATCH (a:Atuador)-[r:Movimento]->(b:Discurso) RETURN a AS source, b AS target, r AS links');
 
     //MATCH (a:Person)-[r:DIRECTED]->(b:Movie) RETURN a AS source, b AS target, r AS links
 
