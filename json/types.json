@@ -1,0 +1,28 @@
+{
+    "nodes": [
+        {"node_group": "Palavra"},
+        {"node_group": "Atuador"},
+        {"node_group": "Discurso"},
+        {"node_group": "Conceito"},
+        {"node_group": "Corpo"},
+        {"node_group": "Espaço"},
+        {"node_group": "Não-Espaço"},
+        {"node_group": "Limite"},
+        {"node_group": "Memória"},
+        {"node_group": "Container"},
+        {"node_group": "Matéria-Prima"},
+        {"node_group": "Matéria"}
+    ],
+    "links": [
+        {"link_group": "Movimento"},
+        {"link_group": "Coleta"},
+        {"link_group": "Ajuste"},
+        {"link_group": "Depósito"},
+        {"link_group": "Entrelaço"},
+        {"link_group": "Amarra"},
+        {"link_group": "Desamarra"},
+        {"link_group": "Tensão"},
+        {"link_group": "Flexão"}
+        
+    ]
+}

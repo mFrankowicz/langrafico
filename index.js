@@ -1,4 +1,5 @@
 /*jslint node:true*/
+/*jslint esversion: 6*/
 
 const _ = require('lodash');
 
@@ -18,6 +19,7 @@ const INDEX = path.join(__dirname,'index.html');
 const server = express()
     .use('/js', express.static(__dirname + '/js'))
     .use('/css', express.static(__dirname + '/css'))
+    .use('/json', express.static(__dirname + '/json'))
     .use((req,res) => res.sendFile(INDEX))
     .listen(PORT, () => console.log('Escutando em ${ PORT }'));
 
@@ -36,68 +38,186 @@ io.sockets.on('connection',
     function (socket) {
 
         console.log("We have a new client: " + socket.id);
-
+        const id = socket.client.id;
         // When this user emits, client side: socket.emit('otherevent',some data);
 
-        socket.on('requireAll', function (data) {
-            // Data comes in as whatever was sent, including objects
-
-            console.log("Received requireAll: " + data);
+         
+        socket.on('requireStart', function(data){
+            console.log("Received requireStart: " + data);
 
             var source = [],
                 target = [],
+                all = [],
                 rels = [];
 
             session
                 .run(data)
                 .subscribe({
                     onNext: function (result) {
+                        console.log(result);
                         var s = result.get('source');
                         var t = result.get('target');
                         var r = result.get('links');
+                        var a = result.get('all');
+
 
                         var sId = s.identity.low;
                         var tId = t.identity.low;
+                        var aId = a.identity.low;
+
                         var sName = s.properties.name;
                         var tName = t.properties.name;
+                        var aName = a.properties.name;
+
+                        var sLabels = s.labels;
+                        var tLabels = t.labels;
+                        var aLabels = a.labels;
+
+                        var rType = r.type;
 
                         source.push({
                             "id": sId,
-                            "name": sName
+                            "name": sName,
+                            "type": sLabels
                         });
                         target.push({
                             "id": tId,
-                            "name": tName
+                            "name": tName,
+                            "type": tLabels
+                        });
+                        all.push({
+                            "id": aId,
+                            "name": aName,
+                            "type": aLabels
                         });
 
                         //rels.push({"source": sId, "target": tId});
 
                         rels.push({
                             "source": r.start.low,
-                            "target": r.end.low
+                            "target": r.end.low,
+                            "type": rType
                         });
 
                     },
                     onCompleted: function () {
                         session.close();
                         //driver.close();
-                        var nodes = _.unionWith(source, target, _.isEqualWith);
-                        mongoData = nodes;
+                        var nodesPre = _.unionWith(source, target, _.isEqualWith);
+                        var nodes = _.unionWith(nodesPre,all, _.isEqualWith);
+
+                        //console.log(nodesPre);
+                        //console.log(nodes);
                         //var nodes = _.union(source, target);
                         // console.log(nodes);
+
+                        //console.log("desdulicatingyeah . . .");
+                        rels = _.uniqBy(rels, 'source' && 'target');
+
                         var response = {
                             nodes: nodes,
                             links: rels
                         };
-                        io.sockets.emit('response', response);
+                        //socket.client[socket.id].emit('response',response);
+                        //console.log(id);
+                        io.in(id).emit('response', response);
+                        console.log('sent response to client ' + id);
+                        //io.sockets.emit('response', response);
                         //io.clients[socket.id].emit('response', response);
                     },
                     onError: function (error) {
                         console.log(error);
                     }
                 });
+        });
+
+        socket.on('createNode', function(data){
+            console.log("Received requireStart: " + data);
+
+            var source = [],
+                target = [],
+                all = [],
+                rels = [];
+
+            session
+                .run(data)
+                .subscribe({
+                    onNext: function (result) {
+                        console.log(result);
+                        var s = result.get('source');
+                        var t = result.get('target');
+                        var r = result.get('links');
+                        var a = result.get('all');
 
 
+                        var sId = s.identity.low;
+                        var tId = t.identity.low;
+                        var aId = a.identity.low;
+
+                        var sName = s.properties.name;
+                        var tName = t.properties.name;
+                        var aName = a.properties.name;
+
+                        var sLabels = s.labels;
+                        var tLabels = t.labels;
+                        var aLabels = a.labels;
+
+                        var rType = r.type;
+
+                        source.push({
+                            "id": sId,
+                            "name": sName,
+                            "type": sLabels
+                        });
+                        target.push({
+                            "id": tId,
+                            "name": tName,
+                            "type": tLabels
+                        });
+                        all.push({
+                            "id": aId,
+                            "name": aName,
+                            "type": aLabels
+                        });
+
+                        //rels.push({"source": sId, "target": tId});
+
+                        rels.push({
+                            "source": r.start.low,
+                            "target": r.end.low,
+                            "type": rType
+                        });
+
+                    },
+                    onCompleted: function () {
+                        session.close();
+                        //driver.close();
+                        var nodesPre = _.unionWith(source, target, _.isEqualWith);
+                        var nodes = _.unionWith(nodesPre,all, _.isEqualWith);
+
+                        //console.log(nodesPre);
+                        //console.log(nodes);
+                        //var nodes = _.union(source, target);
+                        // console.log(nodes);
+
+                        //console.log("desdulicatingyeah . . .");
+                        rels = _.uniqBy(rels, 'source' && 'target');
+
+                        var response = {
+                            nodes: nodes,
+                            links: rels
+                        };
+                        //socket.client[socket.id].emit('response',response);
+                        //console.log(id);
+                        //io.in(id).emit('response', response);
+                        console.log('sent response to client ' + id);
+                        io.sockets.emit('addNode', response);
+                        //io.clients[socket.id].emit('response', response);
+                    },
+                    onError: function (error) {
+                        console.log(error);
+                    }
+                });
         });
 
         socket.on('disconnect', function () {

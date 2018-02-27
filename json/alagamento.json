@@ -1,9 +1,0 @@
-{
-    "nodes": [
-        {"id": "Alagamento", "group": "Palavra"},
-        {"id": "Selo Dois", "group": "Atuador"}
-    ],
-    "links": [
-        {"source": "Selo Dois", "target": "Selo Dois", "type": "Operação"}
-    ]
-}

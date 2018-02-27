@@ -23,11 +23,6 @@
 .appWindow{
     background: var(--fundo);
 }
-.menu {
-    display: block;
-    margin-left: 30pt;
-    float: left;
-}
 
 .button{
     background-color: firebrick;
@@ -41,32 +36,82 @@
     cursor: pointer;
 }
 
-.links{
-    stroke-width: 4pt;
+.inputText {
+    font-size: 12pt;
+    font-style: oblique;
+    text-decoration-color: indigo;
+    text-rendering: geometricPrecision;
+    margin: 10pt;
+}
+
+/* lists */ 
+
+.menu {
+    display: block;
+    margin-left: 30pt;
+    float: left;
+}
+
+.graph_list {
+    color: var(--links);
+}
+
+.types_list { 
+    margin-block-start: 20pt;
+    margin: 5pt;
+    
+}
+
+#link_type_list {
+    margin-block-start: 20pt;
+}
+
+#node_type_list {
+    margin-block-start: 20pt;
+}
+
+#lists {
+    max-width: 630px;
+}
+
+.types_label{
+    font-size: 10pt;
+    text-align: left;
+    color: teal;
+}
+
+/* graph styles */
+.link{
+    stroke-width: 2pt;
     stroke-dasharray: 2pt;
     stroke: var(--links);
 }
 
-.nodes{
+.node{
     fill: var(--nodes);
     cursor: pointer;
 }
-.labels{
+
+.nodelabel {
     fill: var(--label);
     font-family: monospace;
     text-align: center;
     font-weight: bolder;
     text-anchor: middle;
     font-size: large;
+    pointer-events: none;
 }
 
-#nodeCreate {
-    font-size: 12pt;
-    font-style: oblique;
-    text-decoration-color: indigo;
-    text-rendering: geometricPrecision;
+.edgepath {
+
 }
 
-#nodeCreate {
-    margin: 10pt;
+.edgelabel {
+    text-anchor: middle;
+}
+
+#arrowhead {
+    stroke-width: 2pt;
+    stroke-dasharray: 2pt;
+    fill: var(--links);
 }
