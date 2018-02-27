@@ -12,7 +12,7 @@
 </head>
 <body id ="main">
     
-    <script src= "js/interaction.js"></script>
+    
     <aside class = "app">
         <div id = "graph">
             <svg></svg>
@@ -20,15 +20,29 @@
     </aside>
 
     <aside class = "menu">
-        <div id = "graph_summary"></div>
-        <div id = "lists">
-            <g id = "radios_node"></g>
-            <g id = "radios_link"></g>
-        </div>
-        <div id = "create"></div>
-    </aside>
+            <p>resumo do gráfico:</p>
+            <div class = "graph_node_summary"></div>
+            <div class = "graph_link_summary"></div>
+            <p>----------</p>
+            <div id = "lists">
+                <p>tipos de nó: </p>
+                <g id = "radios_node"></g>
+                <p>---</p>
+                <p>tipos de relações</p>
+                <g id = "radios_link"></g>
+            </div>
 
+            <div id="create">
+                <input type="text" class="inputText" id="input_node">
+                <button class="button" id="node_submit">criar nó</button>
+                <input type="text" class="inputText" id="input_link">
+                <button class="button" id="relation_submit">criar relação</button>
+            </div>
+    </aside>
+    
+    <script src= "js/interaction.js"></script>
     <script src="js/app.js"></script>
+    
 
 </body>
 </html>

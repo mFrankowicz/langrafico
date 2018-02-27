@@ -211,7 +211,7 @@ io.sockets.on('connection',
                         //console.log(id);
                         //io.in(id).emit('response', response);
                         console.log('sent response to client ' + id);
-                        io.sockets.emit('addNode', response);
+                        io.sockets.emit('response', response);
                         //io.clients[socket.id].emit('response', response);
                     },
                     onError: function (error) {

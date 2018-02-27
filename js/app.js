@@ -61,33 +61,32 @@ force = d3.forceSimulation()
 
 requestAll();
 
-$( document ).ready(function() {
-
 socket
     .on('response', function (data) {
+
+    $( document ).ready(function() {
+
         console.log(data);
         nodes = data.nodes;
         links = data.links;
         
         
 
-        var link = g.selectAll(".link").data(links);
-        link.exit().remove();
+        var link = g.selectAll(".link").data(links);   
         link = link
                 .enter()
                 .append("line")
                 .attr("class", "link")
                 .attr('marker-end','url(#arrowhead)')
                 .merge(link);
+
         link.append("text")
             .text(function(d){return d.type;});
 
+        link.exit().remove();
 
-        const context = d3.path();
 
         var edgepath = g.selectAll(".edgepath").data(links);
-        edgepath.exit().remove();
-       
         edgepath = edgepath
                     .enter()
                     .append("path")
@@ -96,47 +95,47 @@ socket
                     .style("pointer-events", "none")
                     .merge(edgepath);
 
-        console.log(edgepath);
+        edgepath.exit().remove();
         
         var edgelabel = g.selectAll(".edgelabel").data(links);
-        edgelabel.exit().remove();
         edgelabel = edgelabel
                     .enter()
                     .append('text')
                     .style("pointer-events", "none")
                     .attr("class", "edgelabel")
-                    .attr("id", function (d, i) {return 'edgelabel' + i;})
-                    .merge(edgelabel);
+                    .attr("id", function (d, i) {return 'edgelabel' + i;});
         
         edgelabel.append('textPath')
             .attr('xlink:href',function(d,i) {return '#edgepath'+i;})
             .style("pointer-events", "none")
             .attr("startOffset","50%")
-            .text(function(d){return d.type;})
-            .merge(edgelabel);
-
+            .merge(edgelabel)
+            .text(function(d){return d.type;});
         
+        edgelabel.exit().remove();
+
         var node = g.selectAll(".node").data(nodes);
-    
-        node.exit().remove();
         node = node
                 .enter()
                 .append("circle")
                 .attr("r",20)
                 .attr("class", "node")
                 .merge(node);
-        
+        node.exit().remove();
+
         var nodelabel = g.selectAll(".nodelabel").data(nodes);
-        nodelabel.exit().remove();
+
         nodelabel = nodelabel
                     .enter()
                     .append("text")
                     .attr("class", "nodelabel")
                     .attr("x", function(d){return d.x;})
                     .attr("y", function(d){return d.y;})
-                    .text(function (d){return d.name;})
-                    .merge(nodelabel);
+                    .merge(nodelabel)
+                    .text(function (d){return d.name;});
+                    
 
+        nodelabel.exit().remove();
 
         SVG.call(d3.zoom()
                     .scaleExtent([1 / 2, 8])
@@ -195,9 +194,15 @@ socket
           .on("drag", dragged)
           .on("end", dragended));
 
+    
+    createInterface(data);
+
     });
 
+
 });
+
+
 
 function zoomed() {
     g.attr("transform", d3.event.transform);
@@ -221,8 +226,6 @@ d.fx = null;
 d.fy = null;
 }
 
-
-createInterface();
 
 function requestAll() {
     socket
