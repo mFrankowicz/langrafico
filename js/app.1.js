@@ -54,12 +54,10 @@ var g = SVG.append("g");
 force = d3.forceSimulation()
     .force("link", d3.forceLink().id(function (d) {
         return d.id;
-    }).distance(150).strength(0.5))
+    }).distance(200))
     .force("charge", d3.forceManyBody()
     .strength(-10))
     .force("center", d3.forceCenter(width / 2, height / 2));
-
-    //.force("collide",d3.forceCollide( function(d){return d.r + 8; }).iterations(16) )
 
 requestAll();
 
@@ -79,11 +77,8 @@ socket
         links = data.links;
         
         
-        
-        var link = g.selectAll(".link").data(links);
 
-        
-
+        var link = g.selectAll(".link").data(links);   
         link = link
                 .enter()
                 .append("line")
@@ -93,12 +88,11 @@ socket
 
         link.append("text")
             .text(function(d){return d.type;});
-        
+
         link.exit().remove();
 
-        
+
         var edgepath = g.selectAll(".edgepath").data(links);
-        
         edgepath = edgepath
                     .enter()
                     .append("path")
@@ -107,48 +101,36 @@ socket
                     .style("pointer-events", "none")
                     .merge(edgepath);
 
-        edgepath.exit().remove();        
-        
+        edgepath.exit().remove();
         
         var edgelabel = g.selectAll(".edgelabel").data(links);
-       //append???
+        edgelabel = edgelabel
+                    .enter()
+                    .append('text')
+                    .style("pointer-events", "none")
+                    .attr("class", "edgelabel")
+                    .attr("id", function (d, i) {return 'edgelabel' + i;});
         
-       edgelabel
-            .enter()
-            .append('text')
-            .append('textPath')
-            .attr('class', 'edgelabel')
-            .attr("id", function (d, i) {return 'edgelabel' + i;})
+        edgelabel.append('textPath')
             .attr('xlink:href',function(d,i) {return '#edgepath'+i;})
             .style("pointer-events", "none")
             .attr("startOffset","50%")
             .merge(edgelabel)
             .text(function(d){return d.type;});
-/*
-        edgelabel    
-            .enter()
-            .style("pointer-events", "none")
-            .attr("class", "edgelabel")
-            .attr("id", function (d, i) {return 'edgelabel' + i;})
-            .merge(edgelabel);
-*/
+        
         edgelabel.exit().remove();
 
         var node = g.selectAll(".node").data(nodes);
-       
-
         node = node
                 .enter()
                 .append("circle")
                 .attr("r",20)
                 .attr("class", "node")
                 .merge(node);
-
         node.exit().remove();
 
         var nodelabel = g.selectAll(".nodelabel").data(nodes);
 
-        
         nodelabel = nodelabel
                     .enter()
                     .append("text")
@@ -158,11 +140,11 @@ socket
                     .merge(nodelabel)
                     .text(function (d){return d.name;});
                     
+
         nodelabel.exit().remove();
-        
 
         SVG.call(d3.zoom()
-                    .scaleExtent([1 / 10, 8])
+                    .scaleExtent([1 / 2, 8])
                     .on("zoom", zoomed));
         
         
@@ -193,26 +175,11 @@ socket
             nodelabel
                 .attr("x", function(d) { return d.x; }) 
                 .attr("y", function(d) { return d.y; });
-            
-            /*
+
             edgepath.attr('d', function (d) {
                 return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-            });
-            */
+            });      
 
-           edgepath.attr("d", function(d) {
-            var dx = d.target.x - d.source.x,
-                dy = d.target.y - d.source.y,
-                dr = Math.sqrt(dx * dx + dy * dy);
-        
-            if (d.source.x < d.target.x) {
-              return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-            }
-            else {
-              return "M" + d.target.x + "," + d.target.y + "A" + dr + "," + dr + " 0 0,1 " + d.source.x + "," + d.source.y;
-            }
-          });
-          /*
             edgelabel.attr('transform',function(d,i){
                 if (d.target.x<d.source.x){
                     bbox = this.getBBox();
@@ -224,7 +191,6 @@ socket
                     return 'rotate(0)';
                 }
             });
-            */
         });
 
 
@@ -233,6 +199,9 @@ socket
           .on("start", dragstarted)
           .on("drag", dragged)
           .on("end", dragended));
+
+    
+    createInterface(data);
 
     });
 
@@ -273,124 +242,4 @@ function requestAll() {
     //MATCH (a:Person)-[r:FOLLOWS]->(b:Person) RETURN a AS source, b AS target, r AS links
 
     //MATCH (a:Person)-[r:ACTED_IN]->(b:Movie) WHERE b.title = "The Matrix" RETURN a AS source, b AS target, r AS links
-}
-
-
-
-function setup(){
-    var canvas = createCanvas(700,100);
-    canvas.parent('main_menu');
-    p5_interface();
-}
-
-function draw(){
-    background("#D1C4E9");
-   
-}
-
-function p5_interface(){
-   
-        var div2 = createDiv('<p> Gráfico atual  :</p>');
-        div2.attribute('id', 'resumos');
-        div2.attribute('class', 'main_menu');
-        div2.parent('main_menu');
-
-        var div = createDiv('<p> Criar nova relação  :</p>');
-        div.attribute('id', 'menus');
-        div.attribute('class', 'main_menu');
-        div.parent('main_menu');
-
-        var sel_nodes_sum = createSelect();
-        var sel_links_sum = createSelect();
-
-        var sel_nodes_label_sum = createSpan('nós existentes: </p>');
-        sel_nodes_label_sum.parent('resumos');
-        sel_nodes_label_sum.attribute('class', 'list_span');
-        sel_nodes_sum.attribute('id', 'node_sum_list');
-        sel_nodes_sum.parent(sel_nodes_label_sum);
-
-        var sel_nodes_links_sum = createSpan('<p>relações existentes:');
-        sel_nodes_links_sum.parent('resumos');
-        sel_nodes_links_sum.attribute('class', 'list_span');
-        sel_links_sum.attribute('id', 'link_sum_list');
-        sel_links_sum.parent(sel_nodes_links_sum);
-    
-    $( document ).ready(function() {
-
-        var type_options = loadJSON('../json/types.json', makeList);
-
-        socket
-        .on('response', function (data) {
-
-                console.log("getting data..");
-                var list_graph = graphSummary(data,sel_nodes_sum,sel_links_sum);
-        });
-
-        socket
-        .on('update', function (data) {
-
-                console.log("getting data..");
-                var list_graph = graphSummary(data,sel_nodes_sum,sel_links_sum);
-        });
-
-    });
-        
-}
-
-function keyTyped(){
-    requestAll();
-}
-
-function graphSummary(data, node_list, link_list){
-    console.log("graph summary:");
-    console.log(data);
-
-    var nodes = data.nodes;
-    var links = data.links;
-
-    var sel_links = link_list;
-    var sel_nodes = node_list;
-    
-
-    console.log(sel_nodes.elt);
-    console.log(sel_links.elt);
-
-    nodes.forEach(n => {sel_nodes.option(n.name,n.name + " [" + n.type + "]");});
-    links.forEach(l => {sel_links.option(l.type,l.source_name + "-->" + l.target_name + " [" + l.type + "]");});
-    
-}
-
-function createLink(data, node_list, json){
-    var nodes = data.nodes;
-    var links = json.links;
-
-    var sel_nodes = node_list;
-
-
-
-    nodes.forEach(n => {sel_nodes.option(n.node_group);});
-}
-
-
-function makeList(json){
-    var nodes = json.nodes;
-    var links = json.links;
-
-    var sel_nodes = createSelect();
-    var sel_links = createSelect();
-
-    var sel_nodes_label = createSpan('tipos de nós: </p>');
-    sel_nodes_label.parent('menus');
-    sel_nodes_label.attribute('class', 'list_span');
-    sel_nodes.attribute('class', 'types_list');
-    sel_nodes.parent(sel_nodes_label);
-
-    var sel_nodes_links = createSpan('<p> tipos de relações:');
-    sel_nodes_links.parent('menus');
-    sel_nodes_links.attribute('class', 'list_span');
-    sel_links.attribute('class', 'types_list');
-    sel_links.parent(sel_nodes_links);
-
-    nodes.forEach(n => {sel_nodes.option(n.node_group);});
-    links.forEach(l => {sel_links.option(l.link_group);});
 }

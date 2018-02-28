@@ -41,7 +41,6 @@ io.sockets.on('connection',
         const id = socket.client.id;
         // When this user emits, client side: socket.emit('otherevent',some data);
 
-         
         socket.on('requireStart', function(data){
             console.log("Received requireStart: " + data);
 
@@ -54,7 +53,7 @@ io.sockets.on('connection',
                 .run(data)
                 .subscribe({
                     onNext: function (result) {
-                        console.log(result);
+                        //console.log(result);
                         var s = result.get('source');
                         var t = result.get('target');
                         var r = result.get('links');
@@ -74,6 +73,7 @@ io.sockets.on('connection',
                         var aLabels = a.labels;
 
                         var rType = r.type;
+                        var rId = r.identity.low;
 
                         source.push({
                             "id": sId,
@@ -91,11 +91,13 @@ io.sockets.on('connection',
                             "type": aLabels
                         });
 
-                        //rels.push({"source": sId, "target": tId});
-
+                        //console.log(r);
                         rels.push({
+                            "id": rId,
                             "source": r.start.low,
                             "target": r.end.low,
+                            "source_name": sName,
+                            "target_name": tName,
                             "type": rType
                         });
 
@@ -111,9 +113,13 @@ io.sockets.on('connection',
                         //var nodes = _.union(source, target);
                         // console.log(nodes);
 
-                        //console.log("desdulicatingyeah . . .");
-                        rels = _.uniqBy(rels, 'source' && 'target');
-
+                        console.log(rels);
+                        console.log("desdulicatingyeah . . .");
+                        rels = _.sortedUniqBy(rels, 'id');
+                        nodes = _.sortedUniqBy(nodes, 'id');
+                        console.log(rels);
+                        console.log(nodes);
+                        
                         var response = {
                             nodes: nodes,
                             links: rels
@@ -134,85 +140,41 @@ io.sockets.on('connection',
         socket.on('createNode', function(data){
             console.log("Received requireStart: " + data);
 
-            var source = [],
-                target = [],
-                all = [],
-                rels = [];
-
+            var session_result = [];
+            var rels = [];
             session
                 .run(data)
                 .subscribe({
                     onNext: function (result) {
-                        console.log(result);
-                        var s = result.get('source');
-                        var t = result.get('target');
-                        var r = result.get('links');
-                        var a = result.get('all');
+        
+                        var a = result.get('new');
 
-
-                        var sId = s.identity.low;
-                        var tId = t.identity.low;
                         var aId = a.identity.low;
-
-                        var sName = s.properties.name;
-                        var tName = t.properties.name;
                         var aName = a.properties.name;
-
-                        var sLabels = s.labels;
-                        var tLabels = t.labels;
                         var aLabels = a.labels;
 
-                        var rType = r.type;
-
-                        source.push({
-                            "id": sId,
-                            "name": sName,
-                            "type": sLabels
-                        });
-                        target.push({
-                            "id": tId,
-                            "name": tName,
-                            "type": tLabels
-                        });
-                        all.push({
+                        session_result.push({
                             "id": aId,
                             "name": aName,
                             "type": aLabels
                         });
 
-                        //rels.push({"source": sId, "target": tId});
 
-                        rels.push({
-                            "source": r.start.low,
-                            "target": r.end.low,
-                            "type": rType
-                        });
 
                     },
                     onCompleted: function () {
                         session.close();
                         //driver.close();
-                        var nodesPre = _.unionWith(source, target, _.isEqualWith);
-                        var nodes = _.unionWith(nodesPre,all, _.isEqualWith);
+                        var nodes = session_result;
 
                         //console.log(nodesPre);
-                        //console.log(nodes);
-                        //var nodes = _.union(source, target);
-                        // console.log(nodes);
-
-                        //console.log("desdulicatingyeah . . .");
-                        rels = _.uniqBy(rels, 'source' && 'target');
 
                         var response = {
                             nodes: nodes,
                             links: rels
                         };
-                        //socket.client[socket.id].emit('response',response);
-                        //console.log(id);
-                        //io.in(id).emit('response', response);
-                        console.log('sent response to client ' + id);
-                        io.sockets.emit('response', response);
-                        //io.clients[socket.id].emit('response', response);
+
+                        io.in(id).emit('createNode_Response', response);
                     },
                     onError: function (error) {
                         console.log(error);

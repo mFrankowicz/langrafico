@@ -48,8 +48,20 @@
 
 .menu {
     display: block;
-    margin-left: 30pt;
+    margin-left: 5pt;
+    margin-top: 10pt;
+    margin-bottom: 50pt;
     float: left;
+}
+
+.list_span {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 10pt;
+}
+
+.main_menu {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 13pt;
 }
 
 .graph_list {
@@ -80,13 +92,6 @@
     color: teal;
 }
 
-/* graph styles */
-.link{
-    stroke-width: 2pt;
-    stroke-dasharray: 2pt;
-    stroke: var(--links);
-}
-
 .node{
     fill: var(--nodes);
     cursor: pointer;
@@ -103,7 +108,10 @@
 }
 
 .edgepath {
-
+    stroke-width: 5pt;
+    stroke-dasharray: 2pt;
+    stroke: var(--links);
+    fill: none;
 }
 
 .edgelabel {

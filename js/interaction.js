@@ -23,7 +23,6 @@ function createInterface(data){
                             .append("label")
                             .attr("id", "radio_label")
                             .attr("class", "types_label")
-                            .merge(radio_nodes)
                             .text(function(d) { return d.node_group + ">";})
                             .insert("input")
                             .attr("type", "radio")
@@ -31,7 +30,8 @@ function createInterface(data){
                             .attr("class", "types_list")
                             .attr("name", "nodeStack")
                             .attr("value", function(d,i) {return i;})
-                            .property("checked", function(d,i) { return i===j;});
+                            .property("checked", function(d,i) { return i===j;})
+                            .merge(radio_nodes);
 
                 radio_nodes.exit().remove();
 
@@ -44,7 +44,6 @@ function createInterface(data){
                             .append("label")
                             .attr("id", "link_label")
                             .attr("class", "types_label")
-                            .merge(radio_links)
                             .text(function(d) {return d.link_group + ">";})
                             .insert("input")
                             .attr("type", "radio")
@@ -52,14 +51,15 @@ function createInterface(data){
                             .attr("class", "types_list")
                             .attr("name", "linkStack")
                             .attr("value", function(d,i) {return i;})
-                            .property("checked", function(d,i) { return i===j;});
+                            .property("checked", function(d,i) { return i===j;})
+                            .merge(radio_links);
                 
                 radio_links.exit().remove();
 
             });
 
             //list this graph
-            var graph_nodes = d3.select('.menu').select(".graph_node_summary").selectAll("node_option").data(nodes);
+            var graph_nodes = d3.select('.menu').select(".graph_node_summary").selectAll("node_summary").data(nodes);
             graph_nodes = graph_nodes.enter()
                         .append("li")
                         .attr("class", "graph_list")
@@ -68,7 +68,7 @@ function createInterface(data){
 
             graph_nodes.exit().remove();
            
-            var graph_links = d3.select('.menu').select(".graph_link_summary").selectAll("link_option").data(links);
+            var graph_links = d3.select('.menu').select(".graph_link_summary").selectAll("link_summary").data(links);
             graph_links = graph_links.enter()
                         .append("li")
                         .attr("class", "graph_list")
@@ -92,7 +92,7 @@ function createInterface(data){
                     type: radio_value
                 };
                  
-                var msg = 'MATCH (source)-[links]->(target) MATCH (all) CREATE (n:' + theData.type + ' {name: ' + '\"' + text_value + '\"}) RETURN *';
+                var msg = 'CREATE (n:' + theData.type + ' {name: ' + '\"' + text_value + '\"}) RETURN n as new';
                 console.log(msg);
 
                 socket
