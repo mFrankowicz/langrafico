@@ -140,7 +140,7 @@ socket
         node = node
                 .enter()
                 .append("circle")
-                .attr("r",20)
+                .attr("r",15)
                 .attr("class", "node")
                 .merge(node);
 

@@ -108,8 +108,9 @@
 }
 
 .edgepath {
-    stroke-width: 5pt;
-    stroke-dasharray: 2pt;
+    stroke-width: 2pt;
+    stroke-dasharray: 3pt;
+    stroke-opacity: 0.6;
     stroke: var(--links);
     fill: none;
 }
