@@ -262,10 +262,11 @@ socket
            
             edgepath.attr("d", function(d) {
                 if (d.source.x < d.target.x) {
-                    return arcPath(d.source.x < d.target.x, d);
-                    //return arcPath(true, d);
-                }else{
+                   
                     return arcPath(true, d);
+                }else{
+                    //return arcPath(true, d);
+                    return arcPath(d.source.x < d.target.x, d);
                 }
                 });
                 /*
