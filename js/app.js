@@ -189,7 +189,7 @@ socket
             var countSiblingLinks = function(source, target) {
                 var count = 0;
                 for(var i = 0; i < links.length; ++i){
-                    if( (links[i].source.id == source.id && links[i].target.id == target.id) || (links[i].source.id == target.id && links[i].target.id == source.id) )
+                    if( (links[i].source.id === source.id && links[i].target.id === target.id) || (links[i].source.id === target.id && links[i].target.id === source.id) )
                         count++;
                 }
                 return count;
@@ -198,8 +198,8 @@ socket
             var getSiblingLinks = function(source, target) {
                 var siblings = [];
                 for(var i = 0; i < links.length; ++i){
-                    if( (links[i].source.id == source.id && links[i].target.id == target.id) || (links[i].source.id == target.id && links[i].target.id == source.id) )
-                        siblings.push(links[i].value);
+                    if( (links[i].source.id === source.id && links[i].target.id === target.id) || (links[i].source.id === target.id && links[i].target.id === source.id) )
+                        siblings.push(links[i].type);
                 }
                 return siblings;
             };
@@ -224,8 +224,8 @@ socket
                     var arcScale = d3.scalePoint()
                                             .domain(siblings)
                                             .range([1, siblingCount]);
-                    drx = drx/(1 + (1/siblingCount) * (arcScale(d.value) - 1));
-                    dry = dry/(1 + (1/siblingCount) * (arcScale(d.value) - 1));
+                    drx = drx/(1 + (1/siblingCount) * (arcScale(d.type) - 1));
+                    dry = dry/(1 + (1/siblingCount) * (arcScale(d.type) - 1));
                 }
 
             return "M" + x1 + "," + y1 + "A" + drx + ", " + dry + " " + xRotation + ", " + largeArc + ", " + sweep + " " + x2 + "," + y2;
@@ -262,9 +262,10 @@ socket
            
             edgepath.attr("d", function(d) {
                 if (d.source.x < d.target.x) {
-                    return arcPath(true, d);
-                }else{
                     return arcPath(d.source.x < d.target.x, d);
+                    //return arcPath(true, d);
+                }else{
+                    return arcPath(true, d);
                 }
                 });
                 /*
