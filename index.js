@@ -137,44 +137,19 @@ io.sockets.on('connection',
                 });
         });
 
-        socket.on('createNode', function(data){
-            console.log("Received requireStart: " + data);
+        socket.on('create_relation', function(data){
+            console.log("Received create_relation: " + data);
 
-            var session_result = [];
-            var rels = [];
+            var back_result = [];
             session
                 .run(data)
                 .subscribe({
                     onNext: function (result) {
-        
-                        var a = result.get('new');
-
-                        var aId = a.identity.low;
-                        var aName = a.properties.name;
-                        var aLabels = a.labels;
-
-                        session_result.push({
-                            "id": aId,
-                            "name": aName,
-                            "type": aLabels
-                        });
-
-
-
+                        back_result.push(result);
                     },
                     onCompleted: function () {
-                        session.close();
-                        //driver.close();
-                        var nodes = session_result;
-
-                        //console.log(nodesPre);
-
-                        var response = {
-                            nodes: nodes,
-                            links: rels
-                        };
-
-                        io.in(id).emit('createNode_Response', response);
+                        console.log(back_result);
+                        socket.emit('request_client_to_requireStart','now you can require all');
                     },
                     onError: function (error) {
                         console.log(error);

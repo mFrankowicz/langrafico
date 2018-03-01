@@ -54,9 +54,9 @@ var g = SVG.append("g");
 force = d3.forceSimulation()
     .force("link", d3.forceLink().id(function (d) {
         return d.id;
-    }).distance(150).strength(0.5))
+    }).distance(200).strength(0.5))
     .force("charge", d3.forceManyBody()
-    .strength(-10))
+    .strength(-100))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
     //.force("collide",d3.forceCollide( function(d){return d.r + 8; }).iterations(16) )
@@ -160,6 +160,19 @@ socket
                     
         nodelabel.exit().remove();
         
+        var nodetype = g.selectAll(".nodetype").data(nodes);
+
+        nodetype = nodetype
+                    .enter()
+                    .append("text")
+                    .attr("class", "nodetype")
+                    .attr("x", function(d){return d.x;})
+                    .attr("y", function(d){return d.y;})
+                    .attr("dy", 12)
+                    .merge(nodetype)
+                    .text(function (d){return d.type;});
+                    
+        nodetype.exit().remove();
 
         SVG.call(d3.zoom()
                     .scaleExtent([1 / 10, 8])
@@ -169,6 +182,55 @@ socket
         force.nodes(nodes);
         force.force("link").links(links);
         force.alpha(1).restart();
+
+        //arc path function
+        function arcPath(leftHand, d) {
+
+            var countSiblingLinks = function(source, target) {
+                var count = 0;
+                for(var i = 0; i < links.length; ++i){
+                    if( (links[i].source.id == source.id && links[i].target.id == target.id) || (links[i].source.id == target.id && links[i].target.id == source.id) )
+                        count++;
+                }
+                return count;
+            };
+      
+            var getSiblingLinks = function(source, target) {
+                var siblings = [];
+                for(var i = 0; i < links.length; ++i){
+                    if( (links[i].source.id == source.id && links[i].target.id == target.id) || (links[i].source.id == target.id && links[i].target.id == source.id) )
+                        siblings.push(links[i].value);
+                }
+                return siblings;
+            };
+
+            var x1 = leftHand ? d.source.x : d.target.x,
+                y1 = leftHand ? d.source.y : d.target.y,
+                x2 = leftHand ? d.target.x : d.source.x,
+                y2 = leftHand ? d.target.y : d.source.y,
+                dx = x2 - x1,
+                dy = y2 - y1,
+                dr = Math.sqrt(dx * dx + dy * dy),
+                drx = dr,
+                dry = dr,
+                sweep = leftHand ? 0 : 1;
+            var siblingCount = countSiblingLinks(d.source, d.target),
+                xRotation = 0,
+                largeArc = 0;
+
+                if (siblingCount > 1) {
+                    var siblings = getSiblingLinks(d.source, d.target);
+                   // console.log(siblings);
+                    var arcScale = d3.scalePoint()
+                                            .domain(siblings)
+                                            .range([1, siblingCount]);
+                    drx = drx/(1 + (1/siblingCount) * (arcScale(d.value) - 1));
+                    dry = dry/(1 + (1/siblingCount) * (arcScale(d.value) - 1));
+                }
+
+            return "M" + x1 + "," + y1 + "A" + drx + ", " + dry + " " + xRotation + ", " + largeArc + ", " + sweep + " " + x2 + "," + y2;
+        }
+
 
         force.on("tick", function() {
 
@@ -194,12 +256,18 @@ socket
                 .attr("x", function(d) { return d.x; }) 
                 .attr("y", function(d) { return d.y; });
             
-            /*
-            edgepath.attr('d', function (d) {
-                return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-            });
-            */
-
+            nodetype
+                .attr("x", function(d) { return d.x; }) 
+                .attr("y", function(d) { return d.y; });
+           
+            edgepath.attr("d", function(d) {
+                if (d.source.x < d.target.x) {
+                    return arcPath(true, d);
+                }else{
+                    return arcPath(d.source.x < d.target.x, d);
+                }
+                });
+                /*
            edgepath.attr("d", function(d) {
             var dx = d.target.x - d.source.x,
                 dy = d.target.y - d.source.y,
@@ -211,20 +279,13 @@ socket
             else {
               return "M" + d.target.x + "," + d.target.y + "A" + dr + "," + dr + " 0 0,1 " + d.source.x + "," + d.source.y;
             }
+
+            if (d.source.id === d.target.id || d.target.id === d.source.id){
+                return "M" + d.target.x + "," + d.target.y + "A" + dr + "," + dr + " 0 0,1 " + d.source.x + "," + d.source.y;
+            }
           });
-          /*
-            edgelabel.attr('transform',function(d,i){
-                if (d.target.x<d.source.x){
-                    bbox = this.getBBox();
-                    rx = bbox.x+bbox.width/2;
-                    ry = bbox.y+bbox.height/2;
-                    return 'rotate(180 '+rx+' '+ry+')';
-                }
-                else {
-                    return 'rotate(0)';
-                }
-            });
-            */
+          */
+          
         });
 
 
@@ -267,54 +328,76 @@ d.fy = null;
 function requestAll() {
     socket
         .emit('requireStart', 'MATCH (source)-[links]->(target) MATCH (all) RETURN *');
-
-    //MATCH (a:Person)-[r:DIRECTED]->(b:Movie) RETURN a AS source, b AS target, r AS links
-
-    //MATCH (a:Person)-[r:FOLLOWS]->(b:Person) RETURN a AS source, b AS target, r AS links
-
-    //MATCH (a:Person)-[r:ACTED_IN]->(b:Movie) WHERE b.title = "The Matrix" RETURN a AS source, b AS target, r AS links
 }
 
 
 
 function setup(){
     var canvas = createCanvas(700,100);
-    canvas.parent('main_menu');
+    canvas.parent('p5_canvas');
     p5_interface();
+    socket
+        .on('request_client_to_requireStart', function(data){
+        console.log(data + ' ...gotit!')
+        requestAll();
+    });
 }
 
 function draw(){
     background("#D1C4E9");
-   
+    
 }
 
 function p5_interface(){
    
-        var div2 = createDiv('<p> Gráfico atual  :</p>');
-        div2.attribute('id', 'resumos');
-        div2.attribute('class', 'main_menu');
-        div2.parent('main_menu');
-
-        var div = createDiv('<p> Criar nova relação  :</p>');
+        var div = createDiv('<p> Criar novo nó :</p>');
         div.attribute('id', 'menus');
         div.attribute('class', 'main_menu');
         div.parent('main_menu');
 
-        var sel_nodes_sum = createSelect();
-        var sel_links_sum = createSelect();
+        var div_create_node = createDiv('<p> Criar nova relação a partir de existente  :</p>');
+        div_create_node.attribute('id', 'create_node');
+        div_create_node.attribute('class', 'main_menu');
+        div_create_node.parent('main_menu');
 
-        var sel_nodes_label_sum = createSpan('nós existentes: </p>');
-        sel_nodes_label_sum.parent('resumos');
-        sel_nodes_label_sum.attribute('class', 'list_span');
-        sel_nodes_sum.attribute('id', 'node_sum_list');
-        sel_nodes_sum.parent(sel_nodes_label_sum);
+        ////////////////
+        var sel_nodes_sum_start = createSelect();
+        var sel_nodes_sum_end = createSelect();
 
-        var sel_nodes_links_sum = createSpan('<p>relações existentes:');
-        sel_nodes_links_sum.parent('resumos');
-        sel_nodes_links_sum.attribute('class', 'list_span');
-        sel_links_sum.attribute('id', 'link_sum_list');
-        sel_links_sum.parent(sel_nodes_links_sum);
-    
+        ///////////////
+        var sel_nodes_label_sum_start = createSpan('<p>primeiro nó: </p>');
+        sel_nodes_label_sum_start.parent('create_node');
+        sel_nodes_label_sum_start.attribute('class', 'list_span');
+        /*
+        var start_input = createInput('insira palavra do primeiro nó', 'text');
+        start_input.attribute('id', 'input_start_node');
+        start_input.attribute('class', 'input');
+        start_input.parent(sel_nodes_label_sum_start);
+        */
+        sel_nodes_sum_start.attribute('id', 'node_sum_list_start');
+        sel_nodes_sum_start.parent(sel_nodes_label_sum_start);
+        ////////////////
+        $('.list_span').append('<p> -- </p>');
+        ////////////////
+        var sel_nodes_label_sum_end = createSpan('<p>segundo nó: </p>');
+        sel_nodes_label_sum_end.parent('create_node');
+        sel_nodes_label_sum_end.attribute('class', 'list_span');
+        /*
+        var end_input = createInput('insira palavra do segundo nó', 'text');
+        end_input.attribute('id', 'input_end_node');
+        end_input.attribute('class', 'input');
+        end_input.parent(sel_nodes_label_sum_end);
+        */
+        sel_nodes_sum_end.attribute('id', 'node_sum_list_end');
+        sel_nodes_sum_end.parent(sel_nodes_label_sum_end);
+
+        
+        button = createButton('criar relação!');
+        button.parent('create_node');
+        button.attribute('class','button');
+        button.mousePressed(button_create_link);
+        //$('#create_node').append('<p> -- </p>');
+        ////////////////////////////////////////////////////////////////////////
     $( document ).ready(function() {
 
         var type_options = loadJSON('../json/types.json', makeList);
@@ -323,74 +406,68 @@ function p5_interface(){
         .on('response', function (data) {
 
                 console.log("getting data..");
-                var list_graph = graphSummary(data,sel_nodes_sum,sel_links_sum);
+                createLink(data, sel_nodes_sum_start, sel_nodes_sum_end);
         });
 
-        socket
-        .on('update', function (data) {
+        var from_existing_type_options = loadJSON('../json/types.json', from_existing_makeList);
 
-                console.log("getting data..");
-                var list_graph = graphSummary(data,sel_nodes_sum,sel_links_sum);
-        });
 
     });
         
 }
 
-function keyTyped(){
-    requestAll();
-}
+function button_create_link(){
+    var start_node = _.replace(select('#node_sum_list_start').value(), /\s\[.*\]/g,'');
+    var end_node = _.replace(select('#node_sum_list_end').value(), /\s\[.*\]/g ,'');
+    var relation = select('#types_list_create').value();
 
-function graphSummary(data, node_list, link_list){
-    console.log("graph summary:");
-    console.log(data);
+    var require = "MATCH (start),(end) WHERE start.name = \""+start_node+"\" AND end.name = \""+end_node+"\" CREATE (start)-[:"+relation+"]->(end)";
+    socket
+        .emit('create_relation',require);
+}   
 
+function createLink(data, node_list_start, node_list_end){
     var nodes = data.nodes;
-    var links = data.links;
+    //var links = json.links;
 
-    var sel_links = link_list;
-    var sel_nodes = node_list;
-    
+    var sel_nodes_start = node_list_start;
+    var sel_nodes_end = node_list_end;
 
-    console.log(sel_nodes.elt);
-    console.log(sel_links.elt);
 
-    nodes.forEach(n => {sel_nodes.option(n.name,n.name + " [" + n.type + "]");});
-    links.forEach(l => {sel_links.option(l.type,l.source_name + "-->" + l.target_name + " [" + l.type + "]");});
-    
+    nodes.forEach(n => {sel_nodes_start.option(n.name,n.name + " [" + n.type + "]");});
+    nodes.forEach(n => {sel_nodes_end.option(n.name,n.name + " [" + n.type + "]");});
+
 }
 
-function createLink(data, node_list, json){
-    var nodes = data.nodes;
-    var links = json.links;
+function from_existing_makeList(json){
+     var links = json.links;
 
-    var sel_nodes = node_list;
+    var sel_links = createSelect();
 
+    var sel_nodes_links = createSpan('<p> tipos de relações:');
+    sel_nodes_links.parent('create_node');
+    sel_nodes_links.attribute('class', 'list_span');
+    sel_links.attribute('id', 'types_list_create');
+    sel_links.parent(sel_nodes_links);
 
-
-    nodes.forEach(n => {sel_nodes.option(n.node_group);});
+    links.forEach(l => {sel_links.option(l.link_group);});
 }
-
 
 function makeList(json){
     var nodes = json.nodes;
-    var links = json.links;
+    //var links = json.links;
 
-    var sel_nodes = createSelect();
-    var sel_links = createSelect();
-
-    var sel_nodes_label = createSpan('tipos de nós: </p>');
-    sel_nodes_label.parent('menus');
-    sel_nodes_label.attribute('class', 'list_span');
-    sel_nodes.attribute('class', 'types_list');
-    sel_nodes.parent(sel_nodes_label);
-
+    var sel_nodes = select("#node_create_select");
+    //var sel_links = createSelect();
+    //sel_nodes.attribute('class', 'types_list');
+    sel_nodes.parent('span_create_node_1');
+/*
     var sel_nodes_links = createSpan('<p> tipos de relações:');
     sel_nodes_links.parent('menus');
     sel_nodes_links.attribute('class', 'list_span');
     sel_links.attribute('class', 'types_list');
     sel_links.parent(sel_nodes_links);
-
+*/
     nodes.forEach(n => {sel_nodes.option(n.node_group);});
-    links.forEach(l => {sel_links.option(l.link_group);});
+   // links.forEach(l => {sel_links.option(l.link_group);});
 }

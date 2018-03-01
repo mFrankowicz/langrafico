@@ -36,7 +36,7 @@
     cursor: pointer;
 }
 
-.inputText {
+.input_text {
     font-size: 12pt;
     font-style: oblique;
     text-decoration-color: indigo;
@@ -71,7 +71,9 @@
 .types_list { 
     margin-block-start: 20pt;
     margin: 5pt;
-    
+    border-radius: 5px;
+    font-family: Cambria;
+    font-size: 12pt;    
 }
 
 #link_type_list {
@@ -107,6 +109,15 @@
     pointer-events: none;
 }
 
+.nodetype {
+    fill: var(black);
+    font-family: monospace;
+    text-align: center;
+    font-weight: bolder;
+    font-size: 10pt;
+    pointer-events: none;
+}
+
 .edgepath {
     stroke-width: 2pt;
     stroke-dasharray: 3pt;
@@ -124,3 +135,11 @@
     stroke-dasharray: 2pt;
     fill: var(--links);
 }
+
+/*estilos para elementos textuais da página */
+
+.text_main_menu{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 10pt;
+}
+
