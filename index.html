@@ -7,41 +7,26 @@
 <script src = "js/d3.js"></script>
 <script src = "js/d3-selection-multi.v1.js"></script>
 <script src = "js/lodash.js"></script>
-<script src = "js/p5.js"></script>
-<script src = "js/p5.dom.js"></script>
+<script src = "js/chroma.js"></script>
+<script src="js/earley-oop.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/1.12.1/js/jquery.terminal.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/1.12.1/css/jquery.terminal.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="css/styles.css" />
 
 </head>
 <body id ="main">
-    
-    
+
+
     <aside class = "app">
         <div id = "graph">
             <svg></svg>
         </div>
     </aside>
 
-    <aside class = "menu" id = "main_menu">
-           
-            <div id="p5_canvas">
-                <script src="js/interfaceP5.js"></script>
-            </div>
-            <div id="div_create_node">
-                <span>
-                    <p class = "text_main_menu">escolha qual tipo(categoria) pertencerá o nó:</p>
-                    <span id = "span_create_node_1">
-                        <select class="types_list" id="node_create_select"></select></span>
-                    <p class = "text_main_menu">-------</p>
-                    <span id = "span_create_node_inpu">
-                        <input class = "input_text" id="create_node_input_text/>
-                    </span>
-                </span>
-                <span id="span_create_node_2">
-
-                </span>
-            </div>
+    <aside class = "term">
+          <div id="terminal"><div>
     </aside>
-    
+
     <script src="js/app.js"></script>
 
 </body>

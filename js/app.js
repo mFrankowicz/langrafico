@@ -13,6 +13,8 @@ var linkSVG;
 var width = 700;
 var height = 700;
 
+console.log(chroma.brewer.RdBu);
+
 socket = io();
 
 dataContainer = d3
@@ -70,27 +72,6 @@ socket
             nodes = data.nodes;
             links = data.links;
 
-
-
-            var link = g.selectAll(".link").data(links);
-
-
-
-            link = link
-                .enter()
-                .append("line")
-                .attr("class", "link")
-                .attr('marker-end', 'url(#arrowhead)')
-                .merge(link);
-
-            link.append("text")
-                .text(function (d) {
-                    return d.type;
-                });
-
-            link.exit().remove();
-
-
             var edgepath = g.selectAll(".edgepath").data(links);
 
             edgepath = edgepath
@@ -100,6 +81,7 @@ socket
                 .attr("id", function (d, i) {
                     return 'edgepath' + i;
                 })
+                .attr('marker-end', 'url(#arrowhead)')
                 .style("pointer-events", "none")
                 .merge(edgepath);
 
@@ -124,10 +106,10 @@ socket
                 .attr("startOffset", "50%")
                 .merge(edgelabel)
                 .text(function (d) {
-                    return d.type;
+                    return "--[" + d.type + "]--";
                 });
             /*
-                    edgelabel    
+                    edgelabel
                         .enter()
                         .style("pointer-events", "none")
                         .attr("class", "edgelabel")
@@ -142,8 +124,10 @@ socket
             node = node
                 .enter()
                 .append("circle")
-                .attr("r", 15)
                 .attr("class", "node")
+                .attr("id", function (d) {
+                    return "node_" + d.type;
+                })
                 .merge(node);
 
             node.exit().remove();
@@ -155,6 +139,9 @@ socket
                 .enter()
                 .append("text")
                 .attr("class", "nodelabel")
+                .attr("id", function (d) {
+                    return "nodelabel_" + d.type;
+                })
                 .attr("x", function (d) {
                     return d.x;
                 })
@@ -248,20 +235,6 @@ socket
 
             force.on("tick", function () {
 
-                link
-                    .attr("x1", function (d) {
-                        return d.source.x;
-                    })
-                    .attr("y1", function (d) {
-                        return d.source.y;
-                    })
-                    .attr("x2", function (d) {
-                        return d.target.x;
-                    })
-                    .attr("y2", function (d) {
-                        return d.target.y;
-                    });
-
                 node
                     .attr("cx", function (d) {
                         return d.x;
@@ -287,37 +260,18 @@ socket
                     });
 
                 edgepath.attr("d", function (d) {
-                    if (d.source.x < d.target.x) {
-
-                        return arcPath(true, d);
-                    } else {
-                        //return arcPath(true, d);
-                        return arcPath(d.source.x < d.target.x, d);
-                    }
+                    return arcPath(true, d);
                 });
-                /*
-           edgepath.attr("d", function(d) {
-            var dx = d.target.x - d.source.x,
-                dy = d.target.y - d.source.y,
-                dr = Math.sqrt(dx * dx + dy * dy);
-        
-            if (d.source.x < d.target.x) {
-              return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
-            }
-            else {
-              return "M" + d.target.x + "," + d.target.y + "A" + dr + "," + dr + " 0 0,1 " + d.source.x + "," + d.source.y;
-            }
-
-            if (d.source.id === d.target.id || d.target.id === d.source.id){
-                return "M" + d.target.x + "," + d.target.y + "A" + dr + "," + dr + " 0 0,1 " + d.source.x + "," + d.source.y;
-            }
-          });
-          */
 
             });
 
-
             node
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            nodelabel
                 .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
@@ -328,7 +282,45 @@ socket
 
     });
 
+function getTransformation(transform) {
+    // Create a dummy g for calculation purposes only. This will never
+    // be appended to the DOM and will be discarded once this function
+    // returns.
+    var g = document.createElementNS("http://www.w3.org/2000/svg", "g");
 
+    // Set the transform attribute to the provided string value.
+    g.setAttributeNS(null, "transform", transform);
+
+    // consolidate the SVGTransformList containing all transformations
+    // to a single SVGTransform of type SVG_TRANSFORM_MATRIX and get
+    // its SVGMatrix.
+    var matrix = g.transform.baseVal.consolidate().matrix;
+
+    // Below calculations are taken and adapted from the private function
+    // transform/decompose.js of D3's module d3-interpolate.
+    var {
+        a,
+        b,
+        c,
+        d,
+        e,
+        f
+    } = matrix; // ES6, if this doesn't work, use below assignment
+    // var a=matrix.a, b=matrix.b, c=matrix.c, d=matrix.d, e=matrix.e, f=matrix.f; // ES5
+    var scaleX, scaleY, skewX;
+    if (scaleX = Math.sqrt(a * a + b * b)) a /= scaleX, b /= scaleX;
+    if (skewX = a * c + b * d) c -= a * skewX, d -= b * skewX;
+    if (scaleY = Math.sqrt(c * c + d * d)) c /= scaleY, d /= scaleY, skewX /= scaleY;
+    if (a * d < b * c) a = -a, b = -b, skewX = -skewX, scaleX = -scaleX;
+    return {
+        translateX: e,
+        translateY: f,
+        rotate: Math.atan2(b, a) * 180 / Math.PI,
+        skewX: Math.atan(skewX) * 180 / Math.PI,
+        scaleX: scaleX,
+        scaleY: scaleY
+    };
+}
 
 function zoomed() {
     g.attr("transform", d3.event.transform);
@@ -358,152 +350,261 @@ function requestAll() {
         .emit('requireStart', 'MATCH (source)-[links]->(target) MATCH (all) RETURN *');
 }
 
+socket.on('request_client_to_requireStart', function(data){
+    requestAll();
+});
+
+var greet = "#  ███████╗███████╗██╗      ██████╗     ██████╗  ██████╗ ██╗███████╗ \n" +
+            "#  ██╔════╝██╔════╝██║     ██╔═══██╗    ██╔══██╗██╔═══██╗██║██╔════╝ \n" +
+            "#  ███████╗█████╗  ██║     ██║   ██║    ██║  ██║██║   ██║██║███████╗ \n" +
+            "#  ╚════██║██╔══╝  ██║     ██║   ██║    ██║  ██║██║   ██║██║╚════██║ \n" +
+            "#  ███████║███████╗███████╗╚██████╔╝    ██████╔╝╚██████╔╝██║███████║ \n" +
+            "#  ╚══════╝╚══════╝╚══════╝ ╚═════╝     ╚═════╝  ╚═════╝ ╚═╝╚══════╝ \n" +
+            "Terminal para |criar| diagrmas \n" +
+            "lista de comandos: \n" +
+            "|criar nó| \n" +
+            "|criar relação| \n "
 
 
-function setup() {
-    var canvas = createCanvas(700, 100);
-    canvas.parent('p5_canvas');
-    p5_interface();
-    socket
-        .on('request_client_to_requireStart', function (data) {
-            console.log(data + ' ...gotit!')
-            requestAll();
+var grammar = new tinynlp.Grammar([
+        'A -> CRIAR NÓ TIPO NOME',
+				'A -> CRIAR NÓ NOME TIPO',
+        'CRIAR -> criar',
+        'NÓ -> nó | W nó',
+        'TIPO -> W tipo W | W W tipo W | tipo W',
+        'NOME -> W nome W | W W nome W | nome W',
+    ]);
+
+grammar.terminalSymbols = function(token) {
+    if ('criar' === token) return ['criar'];
+    if ('nó' === token) return ['nó'];
+    if ('tipo' === token) return ['tipo'];
+    if ('nome' === token) return ['nome'];
+    return['W'];
+    //console.log("arraayyyyy", token);
+}
+
+$('#terminal').terminal(function(command, term) {
+//  term.greetings(function(){return "ndndn"});
+    if (command == 'criar nó'){
+    var settings = {};
+    var questions = [
+      {
+        name: "nome do nó",
+        text: "escreva uma definição/nome para o nó: ",
+        prompt: "definição/nome do nó será: "
+      },
+      {
+        name: "tipo do nó",
+        text: "defina um tipo ao qual o nó pertencerá : ",
+        prompt: "tipo do nó será: "
+      }
+    ];
+
+    function ask_node_creation(step) {
+      var question = questions[step];
+      if(question){
+        if(question.text){
+          term.echo('[[b;#fff;]' + question.text + ']');
+        }
+        term.push(function(command) {
+          if(question.boolean) {
+            var value;
+            if(command.match(/sim/i)) {
+              value = true;
+            }else if(command.match(/não/i)) {
+              value = false;
+            }
+            if(typeof value != 'undefined') {
+              settings[question.name] = value;
+              term.pop();
+              ask_node_creation(step+1);
+            }
+          } else {
+            settings[question.name] = command;
+            term.pop();
+            ask_node_creation(step+1);
+          }
+        }, {
+          prompt: question.prompt || question.name + ": "
         });
+        if(typeof settings[question.name] != 'undefined') {
+          if(typeof settings[question.name] == 'boolean') {
+            term.set_command(settings[question.name] ? 'confirmar' : 'descartar');
+          } else {
+            term.set_command(settings[question.name]);
+          }
+        }
+      } else {
+        finish();
+      }
+    }
+
+    function finish() {
+      term.echo('resumo de suas escolhas: ');
+      var get_args = [];
+      var str = Object.keys(settings).map(function(key){
+        var value = settings[key];
+        console.log(value);
+        get_args.push(value);
+        return '[[b;#fff;]' + key + ']: ' + value;
+      }).join('\n');
+      term.echo(str);
+      term.push(function(command) {
+        if(command.match(/confirmar/i)) {
+          var result = JSON.stringify(settings);
+          var node_type = get_args[1];
+          var node_name = '"'+get_args[0]+'"';
+          socket.emit('create_node',`CREATE (:${node_type} {name: ${node_name}})`);
+          term.echo(result);
+          term.echo(`CREATE (:${node_type} {name: ${node_name}})`);
+          term.pop().history().enable();
+        } else if (command.match(/descartar/i)) {
+          term.pop();
+          ask_node_creation(0);
+        }
+      }, {
+        prompt: 'essas escolhas lhe agradam? (digite confirmar ou descartar): '
+      })
+    }
+
+    term.history().disable();
+    ask_node_creation(0);
+  }
+
+  if(command == 'criar relação') {
+    var settings = {};
+    var questions = [
+      {
+        name: "primeiro nó",
+        text: "escolha o nome/definição do primeiro nó: ",
+        prompt: "primeiro nó: "
+      },
+      {
+        name: "segundo nó",
+        text: "agora digite o nome do segundo nó: ",
+        prompt: "segundo nó: "
+      },
+      {
+        name: "nome da relação",
+        text: "digite o tipo de relação que os dois nós se ligarão: ",
+        prompt: "tipo da relação: "
+      }
+    ];
+
+  function ask_relation_creation(step) {
+    var question = questions[step];
+    if(question){
+      if(question.text){
+        term.echo('[[b;#fff;]' + question.text + ']');
+      }
+      term.push(function(command) {
+        if(question.boolean) {
+          var value;
+          if(command.match(/sim/i)) {
+            value = true;
+          }else if(command.match(/não/i)) {
+            value = false;
+          }
+          if(typeof value != 'undefined') {
+            settings[question.name] = value;
+            term.pop();
+            ask_relation_creation(step+1);
+          }
+        } else {
+          settings[question.name] = command;
+          term.pop();
+          ask_relation_creation(step+1);
+        }
+      }, {
+        prompt: question.prompt || question.name + ": "
+      });
+      if(typeof settings[question.name] != 'undefined') {
+        if(typeof settings[question.name] == 'boolean') {
+          term.set_command(settings[question.name] ? 'confirmar' : 'descartar');
+        } else {
+          term.set_command(settings[question.name]);
+        }
+      }
+    } else {
+      finish();
+    }
+  }
+
+  function finish() {
+    term.echo('resumo de suas escolhas: ');
+    var get_args = [];
+    var str = Object.keys(settings).map(function(key){
+      var value = settings[key];
+      console.log(value);
+      get_args.push(value);
+      return '[[b;#fff;]' + key + ']: ' + value;
+    }).join('\n');
+    term.echo(str);
+    term.push(function(command) {
+      if(command.match(/confirmar/i)) {
+        var node_in = get_args[0];
+        var node_out = get_args[1];
+        var relation_type = get_args[2];
+        socket.emit('create_relation',`MATCH (n1),(n2) WHERE n1.name = \"${node_in}\" AND n2.name = \"${node_out}\" CREATE (n1)-[:${relation_type}]->(n2)`);
+        term.echo(JSON.stringify(settings));
+        term.echo(`CREATE (${node_in})-[:${relation_type}]->(${node_out})`)
+        term.pop().history().enable();
+      } else if (command.match(/descartar/i)) {
+        term.pop();
+        ask_relation_creation(0);
+      }
+    }, {
+      prompt: 'essas escolhas lhe agradam? (digite confirmar ou descartar): '
+    })
+  }
+
+  term.history().disable();
+  ask_relation_creation(0);
+
 }
 
-function draw() {
-    background("#D1C4E9");
+}, {
+  greetings: greet
+});
 
-}
-
-function p5_interface() {
-
-    var div = createDiv('<p> Criar novo nó :</p>');
-    div.attribute('id', 'menus');
-    div.attribute('class', 'main_menu');
-    div.parent('main_menu');
-
-    var div_create_node = createDiv('<p> Criar nova relação a partir de existente  :</p>');
-    div_create_node.attribute('id', 'create_node');
-    div_create_node.attribute('class', 'main_menu');
-    div_create_node.parent('main_menu');
-
-    ////////////////
-    var sel_nodes_sum_start = createSelect();
-    var sel_nodes_sum_end = createSelect();
-
-    ///////////////
-    var sel_nodes_label_sum_start = createSpan('<p>primeiro nó: </p>');
-    sel_nodes_label_sum_start.parent('create_node');
-    sel_nodes_label_sum_start.attribute('class', 'list_span');
-    /*
-    var start_input = createInput('insira palavra do primeiro nó', 'text');
-    start_input.attribute('id', 'input_start_node');
-    start_input.attribute('class', 'input');
-    start_input.parent(sel_nodes_label_sum_start);
-    */
-    sel_nodes_sum_start.attribute('id', 'node_sum_list_start');
-    sel_nodes_sum_start.parent(sel_nodes_label_sum_start);
-    ////////////////
-    $('.list_span').append('<p> -- </p>');
-    ////////////////
-    var sel_nodes_label_sum_end = createSpan('<p>segundo nó: </p>');
-    sel_nodes_label_sum_end.parent('create_node');
-    sel_nodes_label_sum_end.attribute('class', 'list_span');
-    /*
-    var end_input = createInput('insira palavra do segundo nó', 'text');
-    end_input.attribute('id', 'input_end_node');
-    end_input.attribute('class', 'input');
-    end_input.parent(sel_nodes_label_sum_end);
-    */
-    sel_nodes_sum_end.attribute('id', 'node_sum_list_end');
-    sel_nodes_sum_end.parent(sel_nodes_label_sum_end);
-
-
-    button = createButton('criar relação!');
-    button.parent('create_node');
-    button.attribute('class', 'button');
-    button.mousePressed(button_create_link);
-    //$('#create_node').append('<p> -- </p>');
-    ////////////////////////////////////////////////////////////////////////
-    $(document).ready(function () {
-
-        var type_options = loadJSON('../json/types.json', makeList);
-
-        socket
-            .on('response', function (data) {
-
-                console.log("getting data..");
-                createLink(data, sel_nodes_sum_start, sel_nodes_sum_end);
-            });
-
-        var from_existing_type_options = loadJSON('../json/types.json', from_existing_makeList);
-
-
+// mysql keywords
+var uppercase = [
+    'CRIAR', 'NÓ', 'RELAÇÃO'];
+var keywords = uppercase.concat(uppercase.map(function(keyword) {
+    return keyword.toLowerCase();
+}));
+$.terminal.defaults.formatters.push(function(string) {
+    return string.split(/((?:\s|&nbsp;)+)/).map(function(string) {
+        if (keywords.indexOf(string) != -1) {
+            return '[[b;yellow;]' + string + ']';
+        } else {
+            return string;
+        }
+    }).join('');
+});
+/*
+jQuery(function($, undefined) {
+    $('#term_demo').terminal(function(command) {
+        if (command !== '') {
+            try {
+                var result = window.eval(command);
+                if (result !== undefined) {
+                    this.echo(new String(result));
+                }
+            } catch(e) {
+                this.error(new String(e));
+            }
+        } else {
+           this.echo('');
+        }
+    }, {
+        greetings: 'Javascript Interpreter',
+        name: 'js_demo',
+        height: 200,
+        prompt: 'js> '
     });
+});
+*/
 
-}
-
-function button_create_link() {
-    var start_node = _.replace(select('#node_sum_list_start').value(), /\s\[.*\]/g, '');
-    var end_node = _.replace(select('#node_sum_list_end').value(), /\s\[.*\]/g, '');
-    var relation = select('#types_list_create').value();
-
-    var require = "MATCH (start),(end) WHERE start.name = \"" + start_node + "\" AND end.name = \"" + end_node + "\" CREATE (start)-[:" + relation + "]->(end)";
-    socket
-        .emit('create_relation', require);
-}
-
-function createLink(data, node_list_start, node_list_end) {
-    var nodes = data.nodes;
-    //var links = json.links;
-
-    var sel_nodes_start = node_list_start;
-    var sel_nodes_end = node_list_end;
-
-
-    nodes.forEach(n => {
-        sel_nodes_start.option(n.name, n.name + " [" + n.type + "]");
-    });
-    nodes.forEach(n => {
-        sel_nodes_end.option(n.name, n.name + " [" + n.type + "]");
-    });
-
-}
-
-function from_existing_makeList(json) {
-    var links = json.links;
-
-    var sel_links = createSelect();
-
-    var sel_nodes_links = createSpan('<p> tipos de relações:');
-    sel_nodes_links.parent('create_node');
-    sel_nodes_links.attribute('class', 'list_span');
-    sel_links.attribute('id', 'types_list_create');
-    sel_links.parent(sel_nodes_links);
-
-    links.forEach(l => {
-        sel_links.option(l.link_group);
-    });
-}
-
-function makeList(json) {
-    var nodes = json.nodes;
-    //var links = json.links;
-
-    var sel_nodes = select("#node_create_select");
-    //var sel_links = createSelect();
-    //sel_nodes.attribute('class', 'types_list');
-    sel_nodes.parent('span_create_node_1');
-    /*
-        var sel_nodes_links = createSpan('<p> tipos de relações:');
-        sel_nodes_links.parent('menus');
-        sel_nodes_links.attribute('class', 'list_span');
-        sel_links.attribute('class', 'types_list');
-        sel_links.parent(sel_nodes_links);
-    */
-    nodes.forEach(n => {
-        sel_nodes.option(n.node_group);
-    });
-    // links.forEach(l => {sel_links.option(l.link_group);});
-}
+///////////////////////

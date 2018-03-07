@@ -1,0 +1,83 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Alagamento</title>
+<script src = "js/jquery-3.3.1.min.js"></script>
+<script src = "js/socket.io.js"></script>
+<script src = "js/vis.js"></script>
+<script src = "js/lodash.js"></script>
+<script src = "js/p5.js"></script>
+<script src = "js/p5.dom.js"></script>
+<script src = "js/chroma.js"></script>
+
+<link rel="stylesheet" href="css/styles.css" />
+<link rel="stylesheet" href="css/vis.css" />
+</head>
+<body id ="main">
+    
+    
+    <aside class = "app">
+        <div id = "graph">
+        </div>
+    </aside>
+
+    <aside class = "menu" id = "main_menu">
+           
+            <div id="p5_canvas">
+                <script src="js/interfaceP5.js"></script>
+            </div>
+            <div class ="main_menu" id="div_create">
+
+                <span class="span_main_menu" id= "span_create_node">
+                    <p class = "text_main_menu">criar nó:</p>
+                    <span id = "span_create_node_select">
+                        tipo:
+                        <select class="types_list" id="node_create_select"></select>
+                    </span>
+                    <span id = "span_create_node_input">
+                        <input class = "input_text" id="create_node_input_text"></input>
+                        <p></p>
+                        <button class = "button" id = "create_node_button">criar</button>
+                    </span>
+                    
+                </span>
+
+                <p class = "text_main_menu">-------</p>
+
+                <span class="span_main_menu"  id="span_create_relation">
+                    <p class = "text_main_menu">criar relação: </p>
+                    <span id = "span_create_relation_node_in">
+                        primeiro nó: 
+                        <select class="types_list" id="node_in_select"></select>
+                    </span>
+                    <p></p>
+                    <span id = "span_create_relation_node_out">
+                        segundo nó: 
+                        <select class="types_list" id="node_out_select"></select>
+                    </span>
+                    <p></p>
+                    <span id = "span_create_relation_type">
+                        tipo da relação: 
+                        <select class="types_list" id="relation_create_select"></select>
+                    </span>
+                    <p></p>
+                    <span id = "span_create_relation_input">
+                        <button class="button" id="create_relation_button">criar</button>
+                    </span>
+                
+                </span>
+
+                <p class = "text_main_menu">-------</p> 
+
+                <span class="span_main_menu"  id="span_create_query">
+                    <input class = "input_text" id="create_query_input_text"></input>
+                    <button class = "button" id = "create_query_button">QUERY</button>
+                    <p> padrão : 'MATCH (source)-[links]->(target) MATCH (all) RETURN *'</p>
+                </span>
+            </div>
+    </aside>
+    
+    <script src="js/app.js"></script>
+
+</body>
+</html>

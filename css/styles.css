@@ -1,11 +1,23 @@
-:root{
+:root {
     --links: rgba(214, 40, 57, 1);
     --color: rgba(186, 50, 79, 1);
     --label: rgba(23, 86, 118, 1);
     --nodes: rgba(75, 163, 195, 1);
     --fundo: rgba(204, 230, 244, 1);
-}
 
+
+--zero: #67001f;
+--one: #b2182b;
+--two: #d6604d;
+--three: #f4a582;
+--four: #fddbc7;
+--five: #f7f7f7;
+--six: #d1e5f0;
+--seven: #92c5de;
+--eigth: #4393c3;
+--nine: #2166ac;
+--ten: #053061;
+}
 
 #main {
     font-family: monospace;
@@ -17,88 +29,52 @@
     border-style: solid;
     border-color: firebrick;
     border-width: 5pt;
-
 }
 
-.appWindow{
+.appWindow {
     background: var(--fundo);
 }
 
-.button{
-    background-color: firebrick;
-    border: none;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
+.term {
+    float:right;
 }
 
-.input_text {
-    font-size: 12pt;
-    font-style: oblique;
-    text-decoration-color: indigo;
-    text-rendering: geometricPrecision;
-    margin: 10pt;
+#terminal {
+  min-width: 500px;
+  min-height: 400px;
+  max-width: 500px;
+  max-height: 400px;
+
 }
 
-/* lists */ 
+/* lists */
 
-.menu {
-    display: block;
-    margin-left: 5pt;
-    margin-top: 10pt;
-    margin-bottom: 50pt;
-    float: left;
-}
 
-.list_span {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 10pt;
-}
 
-.main_menu {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 13pt;
-}
-
-.graph_list {
-    color: var(--links);
-}
-
-.types_list { 
-    margin-block-start: 20pt;
-    margin: 5pt;
-    border-radius: 5px;
-    font-family: Cambria;
-    font-size: 12pt;    
-}
-
-#link_type_list {
-    margin-block-start: 20pt;
-}
-
-#node_type_list {
-    margin-block-start: 20pt;
-}
-
-#lists {
-    max-width: 630px;
-}
-
-.types_label{
+.types_label {
     font-size: 10pt;
     text-align: left;
     color: teal;
 }
 
-.node{
+.node {
     fill: var(--nodes);
     cursor: pointer;
+    r: 15;
+}
+/*
+#node_atuador {
+    fill: goldenrod;
+    r: 20;
 }
 
+#node_discurso {
+    fill: var(--one);
+    stroke-dasharray: 3pt;
+    stroke: var(--zero);
+    r: 25;
+}
+*/
 .nodelabel {
     fill: var(--label);
     font-family: monospace;
@@ -106,7 +82,7 @@
     font-weight: bolder;
     text-anchor: middle;
     font-size: large;
-    pointer-events: none;
+    cursor: pointer;
 }
 
 .nodetype {
@@ -138,8 +114,7 @@
 
 /*estilos para elementos textuais da página */
 
-.text_main_menu{
+.text_main_menu {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 10pt;
 }
-
