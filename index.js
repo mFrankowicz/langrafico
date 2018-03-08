@@ -150,7 +150,7 @@ io.sockets.on('connection',
                     onCompleted: function () {
                        // console.log(back_result);
 
-                        io.sockets.emit('request_client_to_requireStart', 'now you can require all');
+                        io.sockets.emit('response', 'now you can require all');
                     },
                     onError: function (error) {
                         console.log(error);
@@ -170,7 +170,7 @@ io.sockets.on('connection',
                     },
                     onCompleted: function () {
                         //console.log(back_result);
-                        io.sockets.emit('request_client_to_requireStart', 'now you can require all');
+                        io.sockets.emit('response', 'now you can require all');
                     },
                     onError: function (error) {
                         console.log(error);
