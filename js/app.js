@@ -356,7 +356,8 @@ function requestUpdateAllClients(){
 }
 
 socket.on('request_client_to_requireStart', function(data){
-    requestAll();
+    // requestAll();
+    requestUpdateAllClients()
 });
 
 var greet = "#  ███████╗███████╗██╗      ██████╗     ██████╗  ██████╗ ██╗███████╗ \n" +
