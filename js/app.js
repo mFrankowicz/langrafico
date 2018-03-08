@@ -350,6 +350,11 @@ function requestAll() {
         .emit('requireStart', 'MATCH (source)-[links]->(target) MATCH (all) RETURN *');
 }
 
+function requestUpdateAllClients(){
+    socket
+        .emit('requireStartAllClients', 'MATCH (source)-[links]->(target) MATCH (all) RETURN *');
+}
+
 socket.on('request_client_to_requireStart', function(data){
     requestAll();
 });
@@ -360,10 +365,15 @@ var greet = "#  ███████╗███████╗██╗      �
             "#  ╚════██║██╔══╝  ██║     ██║   ██║    ██║  ██║██║   ██║██║╚════██║ \n" +
             "#  ███████║███████╗███████╗╚██████╔╝    ██████╔╝╚██████╔╝██║███████║ \n" +
             "#  ╚══════╝╚══════╝╚══════╝ ╚═════╝     ╚═════╝  ╚═════╝ ╚═╝╚══════╝ \n" +
-            "Terminal para |criar| diagrmas \n" +
-            "lista de comandos: \n" +
-            "|criar nó| \n" +
-            "|criar relação| \n "
+            "Terminal para criar diagramas. \n" +
+            "Você pode interagir com o diagrama, clicando e arrastando os nós. \n" +
+            "Use a roda do mouse para controlar o zoom. \n" +
+            "Use CTRL + D para cancelar um comando (iOS: CMD + D) \n" +
+            "------------------------------------ \n" +
+            "para iniciar, começe digitando um dos comandos abaixo e digite e tecle ENTER: \n" +
+            "|ajuda                \n" +
+            "|criar nó             \n" +
+            "|criar relação        \n "
 
 
 var grammar = new tinynlp.Grammar([
@@ -455,7 +465,7 @@ $('#terminal').terminal(function(command, term) {
           var result = JSON.stringify(settings);
           var node_type = get_args[1];
           var node_name = '"'+get_args[0]+'"';
-          socket.emit('create_node',`CREATE (:${node_type} {name: ${node_name}})`);
+          socket.emit('create_node',`CREATE (:${_.upperFirst(node_type)} {name: ${_.upperFirst(node_name)}})`);
           term.echo(result);
           term.echo(`CREATE (:${node_type} {name: ${node_name}})`);
           term.pop().history().enable();
@@ -546,7 +556,7 @@ $('#terminal').terminal(function(command, term) {
         var node_in = get_args[0];
         var node_out = get_args[1];
         var relation_type = get_args[2];
-        socket.emit('create_relation',`MATCH (n1),(n2) WHERE n1.name = \"${node_in}\" AND n2.name = \"${node_out}\" CREATE (n1)-[:${relation_type}]->(n2)`);
+        socket.emit('create_relation',`MATCH (n1),(n2) WHERE n1.name = \"${_.upperFirst(node_in)}\" AND n2.name = \"${_.upperFirst(node_out)}\" CREATE (n1)-[:${_.upperFirst(relation_type)}]->(n2)`);
         term.echo(JSON.stringify(settings));
         term.echo(`CREATE (${node_in})-[:${relation_type}]->(${node_out})`)
         term.pop().history().enable();
@@ -563,6 +573,33 @@ $('#terminal').terminal(function(command, term) {
   ask_relation_creation(0);
 
 }
+if (command == 'ajuda'){
+  term.echo('-Esse é um sistema para criar um diagrama coletivo a partir de comandos textuais. \n \n' +
+            '-Cada comando é digitado separadamente e confirmado com a tecla enter. \n \n' +
+            '-O sistema lhe guiará passo a passo, por tanto, é importante ler as instruções. \n \n' +
+            '-Ao final do percurso, o sistema lhe dará um resumo das escolhas e pedirá para confirmar. \n \n' +
+            '-O diagrama será atualizado com suas escolhas após a confirmação \n');
+
+  term.echo('--------------------------------------------- \n');
+
+  term.echo('-criar nó: Este comando lhe permite criar nós, elementos que invocam um significado \n em específico. \n \n' +
+           '-Será perguntado o nome/definição e o tipo de nó, que é sua representação \n ou referência de algo no mundo. \n \n' +
+           '-Após isso, escolha a definição, que é a propriedade ou qualidade interna deste nó. \n \n' +
+           '-Exemplo 1: supomos o nó "Artista", podemos lhe inferir a qualidade de "Atuador", \n no sentido de evidenciar tipos de ações e a qual contexto este artista pertence. \n \n' +
+           '-Exemplo 2: o nó "Exposição" pode ter uma qualidade de "Espaço", ou "Não-Espaço", \n dependendo do contexto ao qual o nó pertence. \n \n');
+
+  term.echo('--------------------------------------------- \n');
+
+  term.echo('-criar relação: Um comando para estabelecer uma relação entre dois nós. \n \n' +
+            '-Primeiro escolha o nome do primeiro nó, de onde partirá a relação. \n' +
+            '[[b;yellow;]-->Importante!:] O nome deve ser escrito exatamente como no diagrama \n com todos os pingos nos is. \n \n' +
+            '-Após isso Escolha o nome do segundo nó, assim como fez com o primeiro \n' +
+            '-Então escolha um texto que representará essa relação, podendo ser uma palavra \n que defina uma ação, ou um sentido que ligue os dois nós \n \n' +
+            '-Exemplo: O exemplo mais simples é pensar a relação de Amizade (A relação) \n entre duas Pessoas (Os nós). \n \n'
+          );
+
+  term.echo('▲ use a roda do mouse para subir a tela e ler o início ▲ \n');
+}
 
 }, {
   greetings: greet
@@ -570,7 +607,7 @@ $('#terminal').terminal(function(command, term) {
 
 // mysql keywords
 var uppercase = [
-    'CRIAR', 'NÓ', 'RELAÇÃO'];
+    'CRIAR NÓ','CRIAR RELAÇÃO', 'AJUDA'];
 var keywords = uppercase.concat(uppercase.map(function(keyword) {
     return keyword.toLowerCase();
 }));

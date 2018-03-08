@@ -39,12 +39,60 @@
     float:right;
 }
 
-#terminal {
-  min-width: 500px;
+.terminal, .cmd {
+  background-color: var(--ten);
+  color: var(--five);
+  min-width: 630px;
   min-height: 400px;
-  max-width: 500px;
-  max-height: 400px;
+  max-width: 630px;
+  max-height: 700px;
+  font-size: 10pt;
+  font-family: monospace;
+}
 
+.terminal .inverted, .cmd .inverted, .cmd .cursor.blink {
+    background-color: var(--one);
+    color: var(--two);
+}
+@-webkit-keyframes terminal-blink {
+  0%, 100% {
+      background-color: var(--one);
+      color: var(--one);
+  }
+  50% {
+      background-color: var(--two);
+      color: var(--two);
+  }
+}
+@-ms-keyframes terminal-blink {
+  0%, 100% {
+      background-color: var(--one);
+      color: var(--one);
+  }
+  50% {
+      background-color: var(--two);
+      color: var(--two);
+  }
+}
+@-moz-keyframes terminal-blink {
+  0%, 100% {
+      background-color: var(--one);
+      color: var(--one);
+  }
+  50% {
+      background-color: var(--two);
+      color: var(--two);
+  }
+}
+@keyframes terminal-blink {
+  0%, 100% {
+      background-color: var(--one);
+      color: var(--one);
+  }
+  50% {
+      background-color: var(--two);
+      color: var(--two);
+  }
 }
 
 /* lists */
