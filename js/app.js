@@ -367,28 +367,28 @@ var greet = "#  ███████╗███████╗██╗      �
             "#  ███████║███████╗███████╗╚██████╔╝    ██████╔╝╚██████╔╝██║███████║ \n" +
             "#  ╚══════╝╚══════╝╚══════╝ ╚═════╝     ╚═════╝  ╚═════╝ ╚═╝╚══════╝ \n" +
             "Terminal para criar diagramas. \n" +
-            "Você pode interagir com o diagrama, clicando e arrastando os nós. \n" +
+            "Você pode interagir com o diagrama, clicando e arrastando os laços. \n" +
             "Use a roda do mouse para controlar o zoom. \n" +
             "Use CTRL + D para cancelar um comando (iOS: CMD + D) \n" +
             "------------------------------------ \n" +
             "para iniciar, começe digitando um dos comandos abaixo e digite e tecle ENTER: \n" +
             "|ajuda                \n" +
-            "|criar nó             \n" +
+            "|criar laço             \n" +
             "|criar relação        \n "
 
 
 var grammar = new tinynlp.Grammar([
-        'A -> CRIAR NÓ TIPO NOME',
-				'A -> CRIAR NÓ NOME TIPO',
+        'A -> CRIAR LAÇO TIPO NOME',
+				'A -> CRIAR LAÇO NOME TIPO',
         'CRIAR -> criar',
-        'NÓ -> nó | W nó',
+        'LAÇO -> laço | W laço',
         'TIPO -> W tipo W | W W tipo W | tipo W',
         'NOME -> W nome W | W W nome W | nome W',
     ]);
 
 grammar.terminalSymbols = function(token) {
     if ('criar' === token) return ['criar'];
-    if ('nó' === token) return ['nó'];
+    if ('laço' === token) return ['laço'];
     if ('tipo' === token) return ['tipo'];
     if ('nome' === token) return ['nome'];
     return['W'];
@@ -397,18 +397,18 @@ grammar.terminalSymbols = function(token) {
 
 $('#terminal').terminal(function(command, term) {
 //  term.greetings(function(){return "ndndn"});
-    if (command == 'criar nó'){
+    if (command == 'criar laço'){
     var settings = {};
     var questions = [
       {
-        name: "nome do nó",
-        text: "escreva uma definição/nome para o nó: ",
-        prompt: "definição/nome do nó será: "
+        name: "nome do laço",
+        text: "escreva uma definição/nome para o laço: ",
+        prompt: "definição/nome do laço será: "
       },
       {
-        name: "tipo do nó",
-        text: "defina um tipo ao qual o nó pertencerá : ",
-        prompt: "tipo do nó será: "
+        name: "tipo do laço",
+        text: "defina um tipo ao qual o laço pertencerá : ",
+        prompt: "tipo do laço será: "
       }
     ];
 
@@ -487,18 +487,18 @@ $('#terminal').terminal(function(command, term) {
     var settings = {};
     var questions = [
       {
-        name: "primeiro nó",
-        text: "escolha o nome/definição do primeiro nó: ",
-        prompt: "primeiro nó: "
+        name: "primeiro laço",
+        text: "escolha o nome/definição do primeiro laço: ",
+        prompt: "primeiro laço: "
       },
       {
-        name: "segundo nó",
-        text: "agora digite o nome do segundo nó: ",
-        prompt: "segundo nó: "
+        name: "segundo laço",
+        text: "agora digite o nome do segundo laço: ",
+        prompt: "segundo laço: "
       },
       {
         name: "nome da relação",
-        text: "digite o tipo de relação que os dois nós se ligarão: ",
+        text: "digite o tipo de relação que os dois laços se ligarão: ",
         prompt: "tipo da relação: "
       }
     ];
@@ -583,20 +583,20 @@ if (command == 'ajuda'){
 
   term.echo('--------------------------------------------- \n');
 
-  term.echo('-criar nó: Este comando lhe permite criar nós, elementos que invocam um significado \n em específico. \n \n' +
-           '-Será perguntado o nome/definição e o tipo de nó, que é sua representação \n ou referência de algo no mundo. \n \n' +
-           '-Após isso, escolha a definição, que é a propriedade ou qualidade interna deste nó. \n \n' +
-           '-Exemplo 1: supomos o nó "Artista", podemos lhe inferir a qualidade de "Atuador", \n no sentido de evidenciar tipos de ações e a qual contexto este artista pertence. \n \n' +
-           '-Exemplo 2: o nó "Exposição" pode ter uma qualidade de "Espaço", ou "Não-Espaço", \n dependendo do contexto ao qual o nó pertence. \n \n');
+  term.echo('-criar laço: Este comando lhe permite criar laços, elementos que invocam um significado \n em específico. \n \n' +
+           '-Será perguntado o nome/definição e o tipo de laço, que é sua representação \n ou referência de algo no mundo. \n \n' +
+           '-Após isso, escolha a definição, que é a propriedade ou qualidade interna deste laço. \n \n' +
+           '-Exemplo 1: supomos o laço "Artista", podemos lhe inferir a qualidade de "Atuador", \n no sentido de evidenciar tipos de ações e a qual contexto este artista pertence. \n \n' +
+           '-Exemplo 2: o laço "Exposição" pode ter uma qualidade de "Espaço", ou "Não-Espaço", \n dependendo do contexto ao qual o laço pertence. \n \n');
 
   term.echo('--------------------------------------------- \n');
 
-  term.echo('-criar relação: Um comando para estabelecer uma relação entre dois nós. \n \n' +
-            '-Primeiro escolha o nome do primeiro nó, de onde partirá a relação. \n' +
+  term.echo('-criar relação: Um comando para estabelecer uma relação entre dois laços. \n \n' +
+            '-Primeiro escolha o nome do primeiro laço, de onde partirá a relação. \n' +
             '[[b;yellow;]-->Importante!:] O nome deve ser escrito exatamente como no diagrama \n com todos os pingos nos is. \n \n' +
-            '-Após isso Escolha o nome do segundo nó, assim como fez com o primeiro \n' +
-            '-Então escolha um texto que representará essa relação, podendo ser uma palavra \n que defina uma ação, ou um sentido que ligue os dois nós \n \n' +
-            '-Exemplo: O exemplo mais simples é pensar a relação de Amizade (A relação) \n entre duas Pessoas (Os nós). \n \n'
+            '-Após isso Escolha o nome do segundo laço, assim como fez com o primeiro \n' +
+            '-Então escolha um texto que representará essa relação, podendo ser uma palavra \n que defina uma ação, ou um sentido que ligue os dois laços \n \n' +
+            '-Exemplo: O exemplo mais simples é pensar a relação de Amizade (A relação) \n entre duas Pessoas (Os laços). \n \n'
           );
 
   term.echo('▲ use a roda do mouse para subir a tela e ler o início ▲ \n');
@@ -608,7 +608,7 @@ if (command == 'ajuda'){
 
 // mysql keywords
 var uppercase = [
-    'CRIAR NÓ','CRIAR RELAÇÃO', 'AJUDA'];
+    'CRIAR LAÇO','CRIAR RELAÇÃO', 'AJUDA'];
 var keywords = uppercase.concat(uppercase.map(function(keyword) {
     return keyword.toLowerCase();
 }));
