@@ -579,7 +579,7 @@ if (command == 'ajuda'){
   term.echo('--------------------------------------------- \n');
 
   term.echo('-criar laço: Este comando lhe permite criar laços, elementos que invocam um significado \n ou que representa algo \n \n' +
-           '-Será perguntado o nome/definição  laço, que é sua representação \n ou referência de algo no mundo. \n \n';
+           '-Será perguntado o nome/definição  laço, que é sua representação \n ou referência de algo no mundo. \n \n');
 
   term.echo('--------------------------------------------- \n');
 
