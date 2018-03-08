@@ -460,10 +460,10 @@ $('#terminal').terminal(function(command, term) {
         if(command.match(/confirmar/i)) {
           var result = JSON.stringify(settings);
           var node_type = "Laço"
-          var node_name = _.upperFirst('"'+get_args[0]+'"');
+          var node_name = '"'+_.capitalize(get_args[0])+'"';
           socket.emit('create_node',`CREATE (:${node_type} {name: ${node_name}})`);
           term.echo(result);
-          term.echo(`CREATE (:${node_type} {name: ${node_name}})`);
+          // term.echo(`CREATE (:${node_type} {name: ${node_name}})`);
           term.pop().history().enable();
         } else if (command.match(/descartar/i)) {
           term.pop();
@@ -549,12 +549,12 @@ $('#terminal').terminal(function(command, term) {
     term.echo(str);
     term.push(function(command) {
       if(command.match(/confirmar/i)) {
-        var node_in = _.upperFirst(get_args[0]);
-        var node_out = _.upperFirst(get_args[1]);
-        var relation_type = get_args[2];
-        socket.emit('create_relation',`MATCH (n1),(n2) WHERE n1.name = \"${_.upperFirst(node_in)}\" AND n2.name = \"${_.upperFirst(node_out)}\" CREATE (n1)-[:${_.upperFirst(relation_type)}]->(n2)`);
+        var node_in = '"'+_.capitalize(get_args[0])+'"';
+        var node_out = '"'+_.capitalize(get_args[1])+'"';
+        var relation_type = _.capitalize(get_args[2]);
+        socket.emit('create_relation',`MATCH (n1),(n2) WHERE n1.name = ${node_in} AND n2.name = ${node_out} CREATE (n1)-[:${relation_type}]->(n2)`);
         term.echo(JSON.stringify(settings));
-        term.echo(`CREATE (${node_in})-[:${relation_type}]->(${node_out})`)
+        //term.echo(`MATCH (n1),(n2) WHERE n1.name = ${node_in} AND n2.name = ${node_out} CREATE (n1)-[:${relation_type}]->(n2)`)
         term.pop().history().enable();
       } else if (command.match(/descartar/i)) {
         term.pop();
@@ -613,28 +613,5 @@ $.terminal.defaults.formatters.push(function(string) {
         }
     }).join('');
 });
-/*
-jQuery(function($, undefined) {
-    $('#term_demo').terminal(function(command) {
-        if (command !== '') {
-            try {
-                var result = window.eval(command);
-                if (result !== undefined) {
-                    this.echo(new String(result));
-                }
-            } catch(e) {
-                this.error(new String(e));
-            }
-        } else {
-           this.echo('');
-        }
-    }, {
-        greetings: 'Javascript Interpreter',
-        name: 'js_demo',
-        height: 200,
-        prompt: 'js> '
-    });
-});
-*/
 
 ///////////////////////
