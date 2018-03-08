@@ -154,7 +154,7 @@ socket
                 });
 
             nodelabel.exit().remove();
-
+/*
             var nodetype = g.selectAll(".nodetype").data(nodes);
 
             nodetype = nodetype
@@ -174,7 +174,7 @@ socket
                 });
 
             nodetype.exit().remove();
-
+*/
             SVG.call(d3.zoom()
                 .scaleExtent([1 / 10, 8])
                 .on("zoom", zoomed));
@@ -250,7 +250,7 @@ socket
                     .attr("y", function (d) {
                         return d.y;
                     });
-
+/*
                 nodetype
                     .attr("x", function (d) {
                         return d.x;
@@ -258,7 +258,7 @@ socket
                     .attr("y", function (d) {
                         return d.y;
                     });
-
+*/
                 edgepath.attr("d", function (d) {
                     return arcPath(true, d);
                 });
@@ -404,11 +404,6 @@ $('#terminal').terminal(function(command, term) {
         name: "nome do laço",
         text: "escreva uma definição/nome para o laço: ",
         prompt: "definição/nome do laço será: "
-      },
-      {
-        name: "tipo do laço",
-        text: "defina um tipo ao qual o laço pertencerá : ",
-        prompt: "tipo do laço será: "
       }
     ];
 
@@ -464,9 +459,9 @@ $('#terminal').terminal(function(command, term) {
       term.push(function(command) {
         if(command.match(/confirmar/i)) {
           var result = JSON.stringify(settings);
-          var node_type = get_args[1];
-          var node_name = '"'+get_args[0]+'"';
-          socket.emit('create_node',`CREATE (:${_.upperFirst(node_type)} {name: ${_.upperFirst(node_name)}})`);
+          var node_type = "Laço"
+          var node_name = _.upperFirst('"'+get_args[0]+'"');
+          socket.emit('create_node',`CREATE (:${node_type} {name: ${node_name}})`);
           term.echo(result);
           term.echo(`CREATE (:${node_type} {name: ${node_name}})`);
           term.pop().history().enable();
@@ -554,8 +549,8 @@ $('#terminal').terminal(function(command, term) {
     term.echo(str);
     term.push(function(command) {
       if(command.match(/confirmar/i)) {
-        var node_in = get_args[0];
-        var node_out = get_args[1];
+        var node_in = _.upperFirst(get_args[0]);
+        var node_out = _.upperFirst(get_args[1]);
         var relation_type = get_args[2];
         socket.emit('create_relation',`MATCH (n1),(n2) WHERE n1.name = \"${_.upperFirst(node_in)}\" AND n2.name = \"${_.upperFirst(node_out)}\" CREATE (n1)-[:${_.upperFirst(relation_type)}]->(n2)`);
         term.echo(JSON.stringify(settings));
@@ -585,7 +580,6 @@ if (command == 'ajuda'){
 
   term.echo('-criar laço: Este comando lhe permite criar laços, elementos que invocam um significado \n em específico. \n \n' +
            '-Será perguntado o nome/definição e o tipo de laço, que é sua representação \n ou referência de algo no mundo. \n \n' +
-           '-Após isso, escolha a definição, que é a propriedade ou qualidade interna deste laço. \n \n' +
            '-Exemplo 1: supomos o laço "Artista", podemos lhe inferir a qualidade de "Atuador", \n no sentido de evidenciar tipos de ações e a qual contexto este artista pertence. \n \n' +
            '-Exemplo 2: o laço "Exposição" pode ter uma qualidade de "Espaço", ou "Não-Espaço", \n dependendo do contexto ao qual o laço pertence. \n \n');
 
