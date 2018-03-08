@@ -27,12 +27,12 @@
     margin: auto;
     float: left;
     border-style: solid;
-    border-color: firebrick;
-    border-width: 5pt;
+    border-color: var(--one);
+    border-width: 2pt;
 }
 
 .appWindow {
-    background: var(--fundo);
+    background: var(--five);
 }
 
 .term {
@@ -95,8 +95,10 @@
   }
 }
 
-/* lists */
 
+#graph_background {
+
+}
 
 
 .types_label {

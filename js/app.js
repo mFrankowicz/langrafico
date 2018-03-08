@@ -1,4 +1,17 @@
 /*jslint esversion: 6*/
+const zero_color = "#67001f";
+const one_color = "#b2182b";
+const two_color = "#d6604d";
+const three_color = "#f4a582";
+const four_color = "#fddbc7";
+const five_color = "#f7f7f7";
+const six_color = "#d1e5f0";
+const seven_color = "#92c5de";
+const eigth_color = "#4393c3";
+const nine_color = "#2166ac";
+const ten_color = "#053061";
+
+
 var socket;
 
 var nodes;
@@ -28,6 +41,27 @@ SVG = d3
     .attr("width", width)
     .attr("height", height)
     .attr("transfor", d3.zoomIdentity);
+
+var t_line1 = textures.lines()
+        .size(4)
+        .strokeWidth(1);
+
+var t_path1 = textures.paths()
+              .d("woven")
+              .lighter()
+              .thicker()
+              .stroke(seven_color);
+
+SVG.call(t_line1);
+SVG.call(t_path1);
+
+SVG.append("rect")
+   .style("fill", t_path1.url())
+   .attr("x", 0)
+   .attr("y", 0)
+   .attr("width", width)
+   .attr("height", height)
+   .attr("id", "graph_background");
 
 SVG.append('defs').append('marker')
     .attrs({
@@ -89,7 +123,7 @@ socket
 
 
             var edgelabel = g.selectAll(".edgelabel").data(links);
-            //append???
+
 
             edgelabel
                 .enter()
@@ -108,14 +142,7 @@ socket
                 .text(function (d) {
                     return "--[" + d.type + "]--";
                 });
-            /*
-                    edgelabel
-                        .enter()
-                        .style("pointer-events", "none")
-                        .attr("class", "edgelabel")
-                        .attr("id", function (d, i) {return 'edgelabel' + i;})
-                        .merge(edgelabel);
-            */
+
             edgelabel.exit().remove();
 
             var node = g.selectAll(".node").data(nodes);
@@ -124,6 +151,7 @@ socket
             node = node
                 .enter()
                 .append("circle")
+                //.style("fill", t.url())
                 .attr("class", "node")
                 .attr("id", function (d) {
                     return "node_" + d.type;
@@ -154,27 +182,7 @@ socket
                 });
 
             nodelabel.exit().remove();
-/*
-            var nodetype = g.selectAll(".nodetype").data(nodes);
 
-            nodetype = nodetype
-                .enter()
-                .append("text")
-                .attr("class", "nodetype")
-                .attr("x", function (d) {
-                    return d.x;
-                })
-                .attr("y", function (d) {
-                    return d.y;
-                })
-                .attr("dy", 12)
-                .merge(nodetype)
-                .text(function (d) {
-                    return d.type;
-                });
-
-            nodetype.exit().remove();
-*/
             SVG.call(d3.zoom()
                 .scaleExtent([1 / 10, 8])
                 .on("zoom", zoomed));
@@ -250,15 +258,7 @@ socket
                     .attr("y", function (d) {
                         return d.y;
                     });
-/*
-                nodetype
-                    .attr("x", function (d) {
-                        return d.x;
-                    })
-                    .attr("y", function (d) {
-                        return d.y;
-                    });
-*/
+
                 edgepath.attr("d", function (d) {
                     return arcPath(true, d);
                 });
@@ -578,10 +578,8 @@ if (command == 'ajuda'){
 
   term.echo('--------------------------------------------- \n');
 
-  term.echo('-criar laço: Este comando lhe permite criar laços, elementos que invocam um significado \n em específico. \n \n' +
-           '-Será perguntado o nome/definição e o tipo de laço, que é sua representação \n ou referência de algo no mundo. \n \n' +
-           '-Exemplo 1: supomos o laço "Artista", podemos lhe inferir a qualidade de "Atuador", \n no sentido de evidenciar tipos de ações e a qual contexto este artista pertence. \n \n' +
-           '-Exemplo 2: o laço "Exposição" pode ter uma qualidade de "Espaço", ou "Não-Espaço", \n dependendo do contexto ao qual o laço pertence. \n \n');
+  term.echo('-criar laço: Este comando lhe permite criar laços, elementos que invocam um significado \n ou que representa algo \n \n' +
+           '-Será perguntado o nome/definição  laço, que é sua representação \n ou referência de algo no mundo. \n \n';
 
   term.echo('--------------------------------------------- \n');
 
